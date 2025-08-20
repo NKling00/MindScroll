@@ -1,4 +1,5 @@
 import{quickModelLoad} from '/js/utils/threeHelpers.js';
+import {createMountainRange} from '/js/utils/Objects.js';
 
 import * as THREE from 'three';
 
@@ -17,6 +18,14 @@ export class Scene2 {
     }
 
     createScene() {
+
+        this.mountain = createMountainRange(20,20,20);
+        this.app.scene.add(this.mountain);
+        this.objects.push(this.mountain);
+
+        gsap.from(this.mountain.position,{y: -15, duration: 25,delay:0, ease: "elastic.out(0.5,0.3)"}); //animate mountain into scene
+
+
         // Create 3D objects for hero scene
         const geometry = new THREE.BoxGeometry(1,1,1);
         const material = new THREE.MeshPhongMaterial({ 
@@ -35,7 +44,7 @@ export class Scene2 {
 
         this.sphere = new THREE.Mesh(geometry, material);
         this.sphere.position.set(0, 0, 0);
-        this.app.scene.add(this.sphere);
+        //this.app.scene.add(this.sphere);
         this.objects.push(this.sphere);
 
         const includeObj =(model)=>{
@@ -43,7 +52,7 @@ export class Scene2 {
             this.objects.push(model);
             this.hide();
         }
-        quickModelLoad('/models/brainModel1High.glb',this.app.scene,includeObj);
+        //quickModelLoad('models/brainModel1High.glb',this.app.scene,includeObj);
 
         // Add particle system
         this.createParticles();
