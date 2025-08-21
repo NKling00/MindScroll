@@ -116,10 +116,10 @@ class ScrollytellingApp {
         window.addEventListener('resize', () => this.onWindowResize());
 
         
-    const gui = new GUI();
-    gui.add(this.bokehPass.uniforms.focus, 'value', 0, 100).name('Focus');
-    gui.add(this.bokehPass.uniforms.aperture, 'value', 0.00001, 0.01).name('Aperture');
-    gui.add(this.bokehPass.uniforms.maxblur, 'value', 0.0, 0.1).name('Max Blur');
+    // const gui = new GUI();
+    // gui.add(this.bokehPass.uniforms.focus, 'value', 0, 100).name('Focus');
+    // gui.add(this.bokehPass.uniforms.aperture, 'value', 0.00001, 0.01).name('Aperture');
+    // gui.add(this.bokehPass.uniforms.maxblur, 'value', 0.0, 0.1).name('Max Blur');
 
     //animate aperture racking into focus on start
     gsap.from(this.bokehPass.uniforms.aperture, {value: 0.01,duration: 2,delay: 1});

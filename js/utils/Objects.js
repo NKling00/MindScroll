@@ -9,6 +9,7 @@ import {createNoise2D } from 'simplex-noise';
 
 
 import brainColorImage from '/textures/Brain_Color.png';
+import { roughness } from 'three/tsl';
 
 //define sphere brain
 const brainGeo = new THREE.SphereGeometry(1.0,100,100);
@@ -106,4 +107,75 @@ export function createMountainRange(width, height, segments) {
   mesh.scale.set(.85,.85, .75); // Adjust scale if needed
   mesh.position.z= -10; 
   return mesh;
+}
+
+
+export const cyberBrain = ()=>{
+        const brainGeo = new THREE.SphereGeometry(2.0,100,100);
+    
+        //setup textures
+        const textureLoader = new THREE.TextureLoader();
+        const textures = {
+                map: textureLoader.load('textures/cyberbrain/cyberbrain-color.png'),
+                normalMap: textureLoader.load('textures/cyberbrain/cyberbrain-normal.png'),
+                roughnessMap: textureLoader.load('textures/cyberbrain/cyberbrain-roughness.png'),
+                metalnessMap: textureLoader.load('textures/cyberbrain/cyberbrain-metalness.png'),
+                displacementMap: textureLoader.load('textures/cyberbrain/cyberbrain-displacement.png'),
+                aoMap: textureLoader.load('textures/cyberbrain/cyberbrain-ao.png'),
+                roughness: 0.5,
+                metalness: 0.5,
+                displacementScale: 0.1,
+                normalScale: new THREE.Vector2(1.6,1.6)
+
+        };
+        
+        for (const key in textures) {
+                if (textures[key] instanceof THREE.Texture) {
+                        textures[key].wrapS = THREE.RepeatWrapping;
+                        textures[key].wrapT = THREE.RepeatWrapping;
+                }
+        }
+
+
+        textures.map.repeat.set(2,1.5);
+        textures.normalMap.repeat.set(2,1.5);
+        textures.aoMap.repeat.set(2,1.5);
+        textures.roughnessMap.repeat.set(2,1.5);
+        textures.metalnessMap.repeat.set(2,1.5);
+        textures.displacementMap.repeat.set(2,1.5);
+
+
+        
+
+        //const brainMat = new THREE.MeshStandardMaterial({map:brainColor,normalMap: brainNormal,aoMap:brainAO,roughnessMap:brainRough,roughness:.4,metalnessMap:brainRough,displacementMap:brainHeight,displacementScale:0.1});
+
+        const cyberBrainMat = new THREE.MeshStandardMaterial(textures)
+        // brainMat.normalScale.set(1.6,1.6);
+        
+        const brainMesh = new THREE.Mesh(brainGeo,cyberBrainMat);
+        brainMesh.position.x = 2.8;
+        brainMesh.scale.x = 1.1;
+        brainMesh.scale.z = .9;
+        brainMesh.rotation.z = -.3;
+
+        return brainMesh;
+}
+
+
+function createPBRMaterial(textures) {
+    const textureLoader = new THREE.TextureLoader();
+    const colorMap = textureLoader.load(textures.color);
+    const normalMap = textureLoader.load(textures.normal);
+    const roughnessMap = textureLoader.load(textures.roughness);
+    const metalnessMap = textureLoader.load(textures.metalness);
+    const displacementMap = textureLoader.load(textures.displacement);
+
+    return new THREE.MeshStandardMaterial({
+        map: colorMap,
+        normalMap: normalMap,
+        roughnessMap: roughnessMap,
+        metalnessMap: metalnessMap,
+        roughness: 0.5,
+        metalness: 0.5
+    });
 }

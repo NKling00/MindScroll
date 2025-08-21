@@ -1,14 +1,18 @@
 import{quickModelLoad} from '/js/utils/threeHelpers.js';
-import {createMountainRange} from '/js/utils/Objects.js';
-
+import {createMountainRange,cyberBrain } from '/js/utils/Objects.js';
+import {GameObject} from '/js/utils/GameObject.js';
+import * as scripts from '/js/utils/objScripts.js';
 import * as THREE from 'three';
 
 export class Scene2 {
     constructor(app) {
         this.app = app;
         this.objects = [];
+        this.gameObjects = [];
         this.isVisible = false;
         
+        this.clock = new THREE.Clock();
+
         this.init();
     }
 
@@ -19,14 +23,14 @@ export class Scene2 {
 
     createScene() {
 
+        //Moutain Range
         this.mountain = createMountainRange(20,20,20);
         this.app.scene.add(this.mountain);
         this.objects.push(this.mountain);
-
         gsap.from(this.mountain.position,{y: -15, duration: 25,delay:0, ease: "elastic.out(0.5,0.3)"}); //animate mountain into scene
 
 
-        // Create 3D objects for hero scene
+        // Test Box
         const geometry = new THREE.BoxGeometry(1,1,1);
         const material = new THREE.MeshPhongMaterial({ 
             color: 0xFF0000,
@@ -52,33 +56,17 @@ export class Scene2 {
             this.objects.push(model);
             this.hide();
         }
-        //quickModelLoad('models/brainModel1High.glb',this.app.scene,includeObj);
+
+        this.cyberBrain = new GameObject(cyberBrain());
+        this.cyberBrain.addToScene(this.app.scene);
+        this.objects.push(this.cyberBrain.object3D);
+        this.gameObjects.push(this.cyberBrain);
+        this.cyberBrain.addScript(scripts.RotateScript, {speed: -0.05,axis: 'y'});
+       // quickModelLoad('models/brainModel1High.glb',this.app.scene,includeObj);
+
 
         // Add particle system
-        this.createParticles();
-    }
-
-    createParticles() {
-        const particleCount = 1000;
-        const geometry = new THREE.BufferGeometry();
-        const positions = new Float32Array(particleCount * 3);
-        
-        for (let i = 0; i < particleCount * 3; i++) {
-            positions[i] = (Math.random() - 0.5) * 20;
-        }
-        
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        
-        const material = new THREE.PointsMaterial({
-            color: 0x00ff88,
-            size: 0.05,
-            transparent: true,
-            opacity: 0.6
-        });
-        
-        this.particles = new THREE.Points(geometry, material);
-        this.app.scene.add(this.particles);
-        this.objects.push(this.particles);
+       
     }
 
     setupAnimations() {
@@ -107,12 +95,7 @@ export class Scene2 {
         });
 
         // Particle animation
-        gsap.to(this.particles.rotation, {
-            y: Math.PI * 2,
-            duration: 20,
-            repeat: -1,
-            ease: "none"
-        });
+        
     }
 
     show() {
@@ -129,14 +112,12 @@ export class Scene2 {
         });
     }
 
-    update() {
+     update() {
         if (!this.isVisible) return;
-        
-        // Update scene-specific animations
-        const time = Date.now() * 0.001;
-        
-        if (this.particles) {
-            this.particles.rotation.y = time * 0.1;
+
+        const deltaTime = this.clock.getDelta(); //get delta time for update
+        for (const obj of this.gameObjects) { //update all gameobjects by sending deltatime
+            obj.update(deltaTime); 
         }
     }
 }
