@@ -1,6 +1,7 @@
 import {ScrollController} from '/js/utils/scrollController.js';
 import {AnimationManager} from '/js/utils/animationManager.js';
 import {HeroScene} from '/js/scenes/scene1.js';
+import {heroScene2} from '/js/scenes/heroScene2.js';
 import {Scene2} from '/js/scenes/scene2.js';
 
 import * as THREE from 'three';
@@ -21,12 +22,18 @@ class ScrollytellingApp {
         this.currentScene = null;
         this.scrollController = null;
         this.animationManager = null;
+
+        this.mouse = new THREE.Vector2();
+        this.raycaster = new THREE.Raycaster();
+        this.clock = new THREE.Clock();
+
         this.usingComposer = true; // Flag to toggle between composer and renderer
-        
+
         this.init();
     }
 
     init() {
+        this.setupMouseMove(); // event listener for mouse move
         this.setupThreeJS();
         this.setupScrollController();
         this.setupAnimationManager();
@@ -136,11 +143,12 @@ class ScrollytellingApp {
 
     loadScenes() {
         // Load individual scene modules
-        this.scenes.hero = new HeroScene(this);
-        this.scenes.threats = new Scene2(this);
+        this.scenes.title = new heroScene2(this);
+        // this.scenes.hero = new HeroScene(this);
+        this.scenes.scene1 = new Scene2(this);
+        this.scenes.scene2 = new Scene2(this);
         this.scenes.threats.hide();
-        //this.scenes.defense = new DefenseScene(this);
-        //this.scenes.future = new FutureScene(this);
+        
         
     }
 
@@ -163,7 +171,6 @@ class ScrollytellingApp {
 
     animate() {
         requestAnimationFrame(() => this.animate());
-        
         if (this.currentScene) {
             this.currentScene.update();
         }
@@ -173,7 +180,17 @@ class ScrollytellingApp {
         else {this.composer.render();}
         
     }
+
+    setupMouseMove() {
+         window.addEventListener('mousemove', (event) => {
+            this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
+    }
+
 }
+
+
 
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {

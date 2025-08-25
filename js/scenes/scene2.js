@@ -1,7 +1,7 @@
 import{quickModelLoad} from '/js/utils/threeHelpers.js';
-import {createMountainRange,cyberBrain } from '/js/utils/Objects.js';
-import {GameObject} from '/js/utils/GameObject.js';
-import * as scripts from '/js/utils/objScripts.js';
+import {createMountainRange,cyberBrain } from '/js/assets/Objects.js';
+import {GameObject} from '/js/engine/GameObject.js';
+import * as scripts from '/js/assets/objScripts.js';
 import * as THREE from 'three';
 
 export class Scene2 {

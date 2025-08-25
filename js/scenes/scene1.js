@@ -1,8 +1,8 @@
 
 import * as THREE from 'three';
-import {sphereBrain,createFabric,YellowParticles} from '/js/utils/Objects.js';
-import * as scripts from '/js/utils/objScripts.js';
-import {GameObject} from '/js/utils/gameObject.js';
+import {sphereBrain,createFabric,YellowParticles} from '/js/assets/Objects.js';
+import * as scripts from '/js/assets/objScripts.js';
+import {GameObject} from '/js/engine/gameObject.js';
 import { createInspector } from '/js/utils/inspector.js';
 
 
@@ -17,14 +17,14 @@ export class HeroScene {
     }
 
     init() {
-        this.clock = new THREE.Clock();
-        this.raycaster = new THREE.Raycaster();
-        this.mouse = new THREE.Vector2();
+        //this.clock = new THREE.Clock();
+        //this.raycaster = new THREE.Raycaster();
+        //this.mouse = new THREE.Vector2();
         this.hoverPoint = null;
-        window.addEventListener('mousemove', (event) => {
-            this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-        });
+        // window.addEventListener('mousemove', (event) => {
+        //     this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        //     this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        // });
         this.createScene();
         this.setupAnimations();
     }
@@ -147,37 +147,25 @@ export class HeroScene {
         });
     }
 
-    randomIntRange(min,max){
-        return (Math.floor(Math.random() * (max - min + 1)) + min);
-    }
-    randomRange(min,max){
-         return ((Math.random() * (max - min + 1)) + min);
-    }
     
     update() {
         if (!this.isVisible) return;
 
-        const deltaTime = this.clock.getDelta(); //get delta time for update
+        const deltaTime = this.app.clock.getDelta(); //get delta time for update
         for (const obj of this.gameObjects) { //update all gameobjects by sending deltatime
             obj.update(deltaTime); 
         }
-        const time = Date.now() * 0.001;
+
         
-    
         //RayCast
-        this.raycaster.setFromCamera(this.mouse, this.app.camera);
-        const intersects = this.raycaster.intersectObject(this.fabricObject.object3D);
-        const brainIntersects = this.raycaster.intersectObject(this.brainGameObject.object3D);
+        this.app.raycaster.setFromCamera(this.app.mouse, this.app.camera);
+        const intersects = this.app.raycaster.intersectObject(this.fabricObject.object3D);
+        const brainIntersects = this.app.raycaster.intersectObject(this.brainGameObject.object3D);
         //ANIMATE FABRIC VERTS
         scripts.fabricWave(this.fabricObject.object3D.geometry,this.originalPositions,intersects);
         //scripts.fabricWave(this.brainGameObject.object3D.geometry,this.brainOriginalPos,brainIntersects, {radius: 2,strength:.2});
         scripts.applyVertexPress(this.brainGameObject.object3D.geometry,this.brainOriginalPos,brainIntersects,.34,18,'wave');
         
-        if (this.particles) {
-            //this.particles.object3D.rotation.y = time * 0.1;
-            //this.particles.object3D.rotation.y += 0.01; // Rotate particles slowly
-           // console.log('particles rotation', this.particles.object3D.rotation.y);
-        }
     }
 
    

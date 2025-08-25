@@ -1,15 +1,10 @@
 //this is where we are going to define the objects that will go into scenes
 import * as THREE from 'three';
-import {GameObject} from '/js/utils/gameObject.js';
-import * as scripts from '/js/utils/objScripts.js';
-
-
 import {createNoise2D } from 'simplex-noise';
 
 
 
-import brainColorImage from '/textures/Brain_Color.png';
-import { roughness } from 'three/tsl';
+
 
 //define sphere brain
 const brainGeo = new THREE.SphereGeometry(1.0,100,100);
