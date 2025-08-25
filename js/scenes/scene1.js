@@ -14,6 +14,7 @@ export class HeroScene {
         this.isVisible = false;
         
         this.init();
+        this.hide(); //hide by default
     }
 
     init() {

@@ -14,6 +14,7 @@ export class Scene2 {
         this.clock = new THREE.Clock();
 
         this.init();
+        this.hide(); //hide by default  
     }
 
     init() {

@@ -11,6 +11,7 @@ export class Story {
         this.isVisible = false;
         
         this.init();
+        this.hide(); //hide by default  
     }
 
     init() {       

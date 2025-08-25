@@ -14,7 +14,11 @@ export class heroScene2 extends Story{
         // this.mountain = createMountainRange(20,20,20);
         // this.addToStory(this.mountain);
         this.object = new GameObject(cyberBrain());
-        this.addToStory(this.object);
+        this.object.setPosition(-2,0,0);
+       // this.addToStory(this.object);
+        this.newObj = new GameObject();
+        this.newObj.loadModel('models/laptop01.glb',()=>{console.log('laptop loaded')});
+        this.addToStory(this.newObj);
         
     }
 

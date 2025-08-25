@@ -146,8 +146,8 @@ class ScrollytellingApp {
         this.scenes.title = new heroScene2(this);
         // this.scenes.hero = new HeroScene(this);
         this.scenes.scene1 = new Scene2(this);
-        this.scenes.scene2 = new Scene2(this);
-        this.scenes.threats.hide();
+        //this.scenes.scene2 = new Scene2(this);
+      
         
         
     }
