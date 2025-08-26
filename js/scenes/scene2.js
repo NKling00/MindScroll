@@ -63,7 +63,7 @@ export class Scene2 {
         this.objects.push(this.cyberBrain.object3D);
         this.gameObjects.push(this.cyberBrain);
         this.cyberBrain.addScript(scripts.RotateScript, {speed: -0.05,axis: 'y'});
-       // quickModelLoad('models/brainModel1High.glb',this.app.scene,includeObj);
+        quickModelLoad('models/brainModel1High.glb',this.app.scene,includeObj);
 
 
         // Add particle system

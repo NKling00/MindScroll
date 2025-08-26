@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import {GUI} from 'three/examples/jsm/libs/lil-gui.module.min.js';
+
 export class GameObject {
     constructor(object3D) {
         this.object3D = object3D || new THREE.Object3D();
@@ -8,7 +10,8 @@ export class GameObject {
         this.enabled = true;
         this.mixer = null; // For animations
         this.animationActions = {};
-
+        this.animateOnScroll = false;
+        //TODO: add in a gui element that can be enabled for basic position,scale,rotation manipulation
     }
 
     addScript(ScriptClass, params = {}) {
@@ -39,6 +42,11 @@ export class GameObject {
                 script.update(deltaTime);
             }
         }
+        if (this.mixer && !this.animateOnScroll) {
+            //console.log('animating with mixer');
+            this.mixer.update(deltaTime);  
+        }
+        
     }
 
     addToScene(scene) {
@@ -58,42 +66,89 @@ export class GameObject {
     }
 
 
-    loadModel(url, onLoad) {
+    loadModelToStory(url,story, onLoad) {
         const loader = new GLTFLoader();
         loader.load(url, (gltf) => {
             this.object3D = (gltf.scene);
             const animations = gltf.animations;
-            console.log(`Found animations: ${animations.length}`);
-            console.log(animations);
+            //console.log(`Found animations: ${animations}`);
             //setup animations if they exist
             if (animations.length > 0){
                 this.mixer = new THREE.AnimationMixer(this.object3D);
-                
                 animations.forEach((clip) => { //store each animation clip as its name in an object to call later
                     const action = this.mixer.clipAction(clip);
                     this.animationActions[clip.name] = action;
-                    console.log(`Loaded animation: ${clip.name}`); 
-
-                    //TO DO LEFT OFF HERE //animations variable has actually found the animation. still not playing though
+                    //console.log(`Loaded animation: ${clip.name}`); 
                 });
-                
-                // Optionally play a default animation if idle exists
-                this.animationActions['animation_0']?.play();
 
             }
+            story.addToStory(this);
             if (onLoad) onLoad();
         });
     }
 
-    playAnimation(animName) {
+    playAnimationOnce(animName,callback=null) {
+        console.log('Attempting to play animation Once:', animName);
+        if (this.mixer && this.animationActions[animName]) {
+            const action = this.animationActions[animName];
+            action.setLoop(THREE.LoopOnce);
+            action.clampWhenFinished = true; // Keep final frame
+            action.play(); //action is actually this.mixer.clip
+            this.mixer.addEventListener('finished', (e) => {
+                console.log('Animation finished!');
+                callback?.();
+            }); 
+        }
+        if (!this.animationActions[animName]) { //no animation found
+            console.warn(`Animation ${animName} not found!`);
+        }
+    }
+
+    playAnimationLoop(animName) {
         console.log('Attempting to play animation:', animName);
         if (this.mixer && this.animationActions[animName]) {
             console.log(`Playing animation: ${animName}`);
-            this.animationActions[animName].reset().play();
+            const action = this.animationActions[animName];
+            action.setLoop(THREE.LoopRepeat);
+            action.clampWhenFinished = false; // Do not clamp, allow looping
+            action.play();
+            // this.animationActions[animName].reset().play();
         }
         if (!this.animationActions[animName]) {
             console.warn(`Animation ${animName} not found!`);
         }
     }
+
+    disableFogMaterials(){
+        //not sure if this will always work depending on how file is packaged
+        for(const meshChild of this.object3D.children[0].children ){
+                meshChild.material.fog=false;
+        }
+        
+     }
+     
+     SetScrollAnimate(animName,triggerElem){
+        this.animateOnScroll = true; //disable update from firing for animation
+        const action=this.animationActions[animName];
+        const animationDuration = action.getClip().duration;
+        action.play();//play the action
+        this.mixer.setTime(0); //set initial time to zero
+        gsap.to({ time: 0 }, {
+        time: animationDuration,
+        ease: "none",
+        scrollTrigger: {
+            trigger: triggerElem,
+            start: "top top",
+            end: "bottom center",
+            scrub: true,
+            markers:true,
+            onUpdate: self => {
+            this.mixer.setTime(self.progress * animationDuration);
+            }
+        }
+        });
+    
+     }
+
 
 }

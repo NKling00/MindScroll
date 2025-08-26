@@ -27,7 +27,7 @@ class ScrollytellingApp {
         this.raycaster = new THREE.Raycaster();
         this.clock = new THREE.Clock();
 
-        this.usingComposer = true; // Flag to toggle between composer and renderer
+        this.usingComposer =false; // Flag to toggle between composer and renderer
 
         this.init();
     }
@@ -50,7 +50,7 @@ class ScrollytellingApp {
         end: "bottom -20%", // how long to pin (in pixels)
         pin: true,
         pinSpacing: true, // adds space after the pinned element
-        markers: true,
+       // markers: true,
         onEnterBack:() =>{
             console.log('on enter title');
             gsap.to(".moduleTitle",{opacity:1,duration:5});},
@@ -66,6 +66,16 @@ class ScrollytellingApp {
             delay: 3,
             ease: "power2.inOut"
         });
+
+        gsap.from('#titleQ',{
+            y:-150,
+            duration: 2,
+            delay:3.5,
+            ease: "power2.Out"
+        });
+
+        
+
     }
 
     setupThreeJS() {
