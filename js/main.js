@@ -10,6 +10,8 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js';
 
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
+import Stats from 'stats.js';
+
 
 //import { gsap } from 'gsap';
 
@@ -27,12 +29,17 @@ class ScrollytellingApp {
         this.raycaster = new THREE.Raycaster();
         this.clock = new THREE.Clock();
 
+        
+        this.stat = null;
+
+        this.enableStats = true;
         this.usingComposer =false; // Flag to toggle between composer and renderer
 
         this.init();
     }
 
     init() {
+        this.setupStats();
         this.setupMouseMove(); // event listener for mouse move
         this.setupThreeJS();
         this.setupScrollController();
@@ -40,6 +47,13 @@ class ScrollytellingApp {
         this.loadScenes();
         this.setupHTMLElementAnimation()
         this.animate();
+    }
+
+    setupStats(){
+        if (!this.enableStats)return;
+        this.stats = new Stats();
+        this.stats.showPanel(0);//0: fps, 1:ms, 2:mb
+        document.body.appendChild(this.stats.dom);
     }
 
     setupHTMLElementAnimation() {
@@ -74,7 +88,103 @@ class ScrollytellingApp {
             ease: "power2.Out"
         });
 
+
+        //brain Video test
+
+        // const video = document.getElementById('scrollVideo');
+        //     const duration = video.duration;
+
+        //     ScrollTrigger.create({
+        //         trigger: ".videoScrollContainer",
+        //         start: "top top",
+        //         end: "bottom bottom",
+        //         scrub: true,
+
+        //         onUpdate: (self) => {
+        //         const scrollProgress = self.progress;
+        //         video.currentTime = scrollProgress * duration;
+        //         console.log('vid:' + video.currentTime);
+        //         }
+        //     });
         
+
+
+    //nodes setup
+    
+         gsap.to(".nodes-1", {
+            y: -1000,
+            x:-50,
+            scrollTrigger: {
+            trigger: ".nodeContainer",
+            start: "top-=1200 top",
+            end: "bottom top",
+            scrub: true
+            }
+        });
+         gsap.to(".nodes0", {
+            y: -1000,
+            x:0,
+            scrollTrigger: {
+            trigger: ".nodeContainer",
+            start: "top-=800 top",
+            end: "bottom  top",
+            scrub: true
+            }
+        });
+
+        gsap.to(".nodes1", {
+            y: -1000,
+            x:200,
+            scrollTrigger: {
+            trigger: ".nodeContainer",
+            start: "top 80%",
+            end: "bottom top",
+            scrub: true
+            }
+        });
+         gsap.to(".nodes2", {
+            y:-500,
+            x: -200,
+            scrollTrigger: {
+            trigger: ".nodeContainer",
+            start: "top 80%",
+            end: "bottom top",
+            scrub: true
+            }
+        });
+         gsap.to(".nodes3", {
+            y:-500,
+            x: 50,
+            scrollTrigger: {
+            trigger: ".nodeContainer",
+            start: "top 80%",
+            end: "bottom top",
+            scrub: true
+            }
+        });
+        gsap.to("#scrollVideo", {
+            scale:1.1,
+            scrollTrigger: {
+            trigger: ".nodeContainer",
+            start: "top top",
+            end: "bottom top",
+            scrub: true
+            }
+        });
+
+        gsap.to("#scrollVideo",{
+            opacity:0,
+            scrollTrigger:{
+                trigger:".videoScrollContainer",
+                start:"bottom 100%",
+                end:"bottom top",
+                scrub:true,
+                //markers:true
+            }
+        });
+
+
+
 
     }
 
@@ -181,6 +291,7 @@ class ScrollytellingApp {
 
     animate() {
         requestAnimationFrame(() => this.animate());
+        if(this.enableStats){this.stats.begin();}
         if (this.currentScene) {
             this.currentScene.update();
         }
@@ -188,7 +299,8 @@ class ScrollytellingApp {
         //choose renderer
         if (!this.usingComposer){this.renderer.render(this.scene, this.camera);}
         else {this.composer.render();}
-        
+        if(this.enableStats){this.stats.end();}
+
     }
 
     setupMouseMove() {

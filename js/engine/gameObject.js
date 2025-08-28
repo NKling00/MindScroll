@@ -141,7 +141,7 @@ export class GameObject {
             start: "top top",
             end: "bottom center",
             scrub: true,
-            markers:true,
+            markers:false,
             onUpdate: self => {
             this.mixer.setTime(self.progress * animationDuration);
             }
