@@ -191,7 +191,8 @@ class ScrollytellingApp {
     setupThreeJS() {
         // Scene setup
         this.scene = new THREE.Scene();
-        this.scene.fog = new THREE.Fog(0xECECEB, 1, 10);
+        //this.scene.fog = new THREE.Fog(0xECECEB, 1, 10);
+        this.scene.fog = new THREE.Fog(0xECECEB, 2, 40);
         
         this.scene.background = new THREE.Color(0xECECEB);
 

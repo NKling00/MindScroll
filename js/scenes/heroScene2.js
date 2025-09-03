@@ -8,6 +8,8 @@ import {GUI} from 'three/examples/jsm/libs/lil-gui.module.min.js';
 import * as THREE from 'three';
 import * as utils from '/js/utils/utils.js';
 
+import loopingTile from '/js/assets/scripts/loopingTile.js';
+
 export class heroScene2 extends Story{
     constructor(app){
         super(app);
@@ -22,7 +24,34 @@ export class heroScene2 extends Story{
         this.object = new GameObject(cyberBrain());
         this.object.setPosition(-2,0,0);
        // this.addToStory(this.object);
-        this.newObj = new GameObject();
+        
+       this.landscape = new GameObject();
+       this.landscape.loadModelToStory('models/Landscape2.glb',this,()=>{
+            const wireframeMaterial = new THREE.MeshBasicMaterial({
+                color:0xEE4B2B,
+                wireframe:true,
+                side: THREE.FrontSide
+            })
+            const scale = 2.5;
+            this.landscape.setScale(scale,scale,scale);//4
+            this.landscape.setPosition(-5,-2,-16);
+
+            //this.landscape.setRotation(Math.PI/7,-.5,0);
+            this.landscape.setRotation(Math.PI/7,-Math.PI/7,0);
+            
+            //this.landscape.disableFogMaterials();
+            this.landscape.object3D.children[0].material.dispose();
+            this.landscape.object3D.children[0].material = wireframeMaterial;
+            console.log('landscape');
+            console.log(this.landscape.object3D);
+            console.log(this.landscape.object3D.children[0].material);
+            this.landscape.addScript(loopingTile,{speed:2.3,story:this,originTile:true,tileSizeX:23.5*scale});
+           
+            //this.landscape.addScript(scripts.lookAtMouse,{app:this.app,yRotation:{max:this.landscape.object3D.rotation.y+.01,min:this.landscape.object3D.rotation.y-.01,step:.1},xRotation:{max:.1,min:-.1,step:.01}});
+        });
+
+       
+       this.newObj = new GameObject();
         this.gui = null;
         //this.gui = new GUI();
         

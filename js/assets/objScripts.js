@@ -30,6 +30,42 @@ export class RotateScript {
   }
 }
 
+
+export class loopPassingScript {
+  static parameters = { //these parameters do nothing on their own, but gameObject class reads them to use as defaults to pass the constructor
+    speed: { type: 'number', default: 1.0 },
+    axis: { type: 'string', default: 'x' },
+    distance:{type:'number',default: 33},
+    initialPoint:{type:'number',default:0}
+  };
+
+  constructor(gameObject, params) {
+    this.gameObject = gameObject;
+    this.speed = params.speed;
+    this.axis = params.axis;
+    this.distance = params.distance;
+    this.initialPoint = params.initialPoint;
+  }
+
+  update(deltaTime) {
+    //this.gameObject.rotation[this.axis] += this.speed * deltaTime;
+    if (this.axis === 'x') {
+      this.gameObject.object3D.position.x += this.speed * deltaTime;
+    } else if (this.axis === 'y') {
+      this.gameObject.object3D.position.y += this.speed * deltaTime;
+    } else if (this.axis === 'z') {
+      this.gameObject.object3D.position.z += this.speed * deltaTime;
+    }
+
+    if (this.distance <= this.initialPoint-this.gameObject.object3D.position.y)
+    {
+      console.log('hit jump  point');
+    }
+
+  }
+}
+
+
 export class lookAtMouse{
   static parameters={
     yRotation: {default:{max:.01,min:-1,step:.03}},  //min max for Object Rotation , step increases speed

@@ -33,3 +33,16 @@ export function quickModelLoad(url, scene, onLoad = null) {
         }
     );
 }
+
+//doesnt work how I want it to yet
+export function drawDebugLine(start, end, scene, color = 0xff0000) {
+  const material = new THREE.LineBasicMaterial({ color });
+  const points = [start, end];
+  const geometry = new THREE.BufferGeometry().setFromPoints(points);
+  const line = new THREE.Line(geometry, material);
+  scene.add(line);
+  return line;
+}
+
+// Usage
+//drawDebugLine(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0));
