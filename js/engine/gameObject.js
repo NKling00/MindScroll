@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {GUI} from 'three/examples/jsm/libs/lil-gui.module.min.js';
+import { createInspector } from '/js/utils/inspector.js';
+import { setToColor } from '/js/utils/threeHelpers.js';
 
 export class GameObject {
     constructor(object3D) {
@@ -11,6 +13,9 @@ export class GameObject {
         this.mixer = null; // For animations
         this.animationActions = {};
         this.animateOnScroll = false;
+
+        this.debugInspector = null;
+        this.name = 'name';
         //TODO: add in a gui element that can be enabled for basic position,scale,rotation manipulation
     }
 
@@ -65,6 +70,17 @@ export class GameObject {
         this.object3D.scale.set(x, y, z);
     }
 
+    enableDebugMode(){
+        this.debugInspector = createInspector(this);
+        setToColor(this.object3D,0xFFC0CB);//set to pink
+    }
+
+    disableDebugMode(){
+        if (this.debugInspector != null){
+            this.debugInspector.destroy();
+        }
+        setToColor(this.object3D,0x000000);
+    }
 
     loadModelToStory(url,story, onLoad) {
         const loader = new GLTFLoader();

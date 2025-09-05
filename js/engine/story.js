@@ -9,9 +9,11 @@ export class Story {
         this.objects = [];
         this.gameObjects = [];
         this.isVisible = false;
+        this.debugIndex = -1;
         
         this.init();
-        this.hide(); //hide by default  
+        this.hide(); //hide all objects by default  
+        this.setupDebugKeyboardControls();
     }
 
     init() {       
@@ -38,7 +40,18 @@ export class Story {
         }
     }
 
-    
+    nextDebugObject(){
+        if(this.debugIndex!= -1){this.gameObjects[this.debugIndex].disableDebugMode();} //disable last one
+        this.debugIndex++;
+        console.log('debug index: '+this.debugIndex + ' / '+ this.gameObjects.length);
+        if (this.debugIndex > this.objects.length-1) //end of list
+        {
+            this.debugIndex =-1;
+            console.log('reset debug index to -1');
+            return
+        }
+        this.gameObjects[this.debugIndex].enableDebugMode();
+    }
 
     setupAnimations() {
         // Setup any GSAP animations or ScrollTriggers specific to this scene here
@@ -73,4 +86,29 @@ export class Story {
     }
 
    
+    //debug controls
+    setupDebugKeyboardControls(){ //ctrl + left and right
+        window.addEventListener('keydown', (event) => {
+        if (event.ctrlKey) {
+            switch (event.key) {
+            case 'ArrowUp':
+                console.log('Ctrl + Arrow Up pressed');
+                break;
+            case 'ArrowDown':
+                console.log('Ctrl + Arrow Down pressed');
+                break;
+            case 'ArrowLeft':
+                console.log('Ctrl + Arrow Left pressed');
+                break;
+            case 'ArrowRight':
+                this.nextDebugObject();
+                break;
+            }
+        }
+        });
+    }
+
+
+
+
 }

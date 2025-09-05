@@ -25,10 +25,15 @@ export class heroScene2 extends Story{
         this.object.setPosition(-2,0,0);
        // this.addToStory(this.object);
         
+
+        //todo: Rework this to have the script add the object3D to this as a clone
+
        this.landscape = new GameObject();
+       const wireframeColor ='0xEE4B2B'; //red
+
        this.landscape.loadModelToStory('models/Landscape2.glb',this,()=>{
             const wireframeMaterial = new THREE.MeshBasicMaterial({
-                color:0xEE4B2B,
+                color:0xb7b1b1,
                 wireframe:true,
                 side: THREE.FrontSide
             })
@@ -36,18 +41,21 @@ export class heroScene2 extends Story{
             this.landscape.setScale(scale,scale,scale);//4
             this.landscape.setPosition(-5,-2,-16);
 
-            //this.landscape.setRotation(Math.PI/7,-.5,0);
+            
             this.landscape.setRotation(Math.PI/7,-Math.PI/7,0);
             
             //this.landscape.disableFogMaterials();
             this.landscape.object3D.children[0].material.dispose();
             this.landscape.object3D.children[0].material = wireframeMaterial;
-            console.log('landscape');
-            console.log(this.landscape.object3D);
-            console.log(this.landscape.object3D.children[0].material);
             this.landscape.addScript(loopingTile,{speed:2.3,story:this,originTile:true,tileSizeX:23.5*scale});
            
-            //this.landscape.addScript(scripts.lookAtMouse,{app:this.app,yRotation:{max:this.landscape.object3D.rotation.y+.01,min:this.landscape.object3D.rotation.y-.01,step:.1},xRotation:{max:.1,min:-.1,step:.01}});
+            //set second object to blue offset color
+            // const offsetMat = new THREE.MeshBasicMaterial({ color: 0x08E8DE,wireframe:true }); // Green color
+            // this.landscape.object3D.children[1].material.dispose();
+            // this.landscape.object3D.children[1].material = offsetMat;
+            
+            //this.landscape.enableDebugMode();
+            
         });
 
        
@@ -59,15 +67,6 @@ export class heroScene2 extends Story{
             ()=>{
                 this.newObj.setPosition(2,-1,0);
                 this.newObj.setScale(.8,.8,.8);
-                //this.newObj.setRotation(0,Math.PI/-12,0);
-                // this.gui.add(this.newObj.object3D.rotation,'x',-180,180).onChange((value) => {
-                // this.newObj.object3D.rotation.x = THREE.MathUtils.degToRad(value);});
-                // this.gui.add(this.newObj.object3D.rotation,'y',-180,180).onChange((value) => {
-                // this.newObj.object3D.rotation.y = THREE.MathUtils.degToRad(value);});
-                // this.gui.add(this.newObj.object3D.rotation,'z',-180,180).onChange((value) => {
-                // this.newObj.object3D.rotation.z = THREE.MathUtils.degToRad(value);});
-                
-              
                 this.newObj.disableFogMaterials();
                 
                 this.newObj.SetScrollAnimate('animation_0','.hero-section');

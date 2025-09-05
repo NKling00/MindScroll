@@ -44,5 +44,18 @@ export function drawDebugLine(start, end, scene, color = 0xff0000) {
   return line;
 }
 
-// Usage
-//drawDebugLine(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0));
+
+export function setToColor(object,color){  //Set all meshes within a game object to the same basic color material , color is a color number 0x00000 not a string
+    object.traverse((child) => { //set color to red
+            if (child.isMesh && child.material) {
+            // If the material is an array (e.g., multi-material), handle each one
+            if (Array.isArray(child.material)) {
+                child.material.forEach((mat) => {
+                if (mat.color) mat.color.set(color); // red
+                });
+            } else {
+                if (child.material.color) child.material.color.set(color); // red
+            }
+            }
+        });
+}

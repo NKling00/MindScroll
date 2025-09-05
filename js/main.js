@@ -60,7 +60,7 @@ class ScrollytellingApp {
         // Animate the module title       
         ScrollTrigger.create({
         trigger: ".moduleTitle",
-        start: " top+=350 top ",
+        start: " top+=150 top ",
         end: "bottom -20%", // how long to pin (in pixels)
         pin: true,
         pinSpacing: true, // adds space after the pinned element
@@ -191,7 +191,7 @@ class ScrollytellingApp {
     setupThreeJS() {
         // Scene setup
         this.scene = new THREE.Scene();
-        //this.scene.fog = new THREE.Fog(0xECECEB, 1, 10);
+        
         this.scene.fog = new THREE.Fog(0xECECEB, 2, 40);
         
         this.scene.background = new THREE.Color(0xECECEB);

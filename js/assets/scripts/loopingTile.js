@@ -10,8 +10,7 @@ export default class loopingTile {
   static parameters = { //these parameters do nothing on their own, but gameObject class reads them to use as defaults to pass the constructor
     speed: { type: 'number', default: 1.0 },
     axis: { type: 'string', default: 'x' },
-    distance:{type:'number',default: 33},
-    tileSizeX:{default:95.5},
+    tileSizeX:{type:'number',default:95.5},
     story:{default:null},
     originTile:{default:false},
     initialPosition:{default:new THREE.Vector3()}
@@ -22,7 +21,6 @@ export default class loopingTile {
     this.gameObject = gameObject;
     this.speed = params.speed;
     this.axis = params.axis;
-    this.distance = params.distance;
     this.story = params.story;
     this.originTile = params.originTile;
     this.tileSizeX = params.tileSizeX;
@@ -69,9 +67,7 @@ export default class loopingTile {
             console.log ('added the clone!!!!');
         }
         clone.addScript(loopingTile,{axis:'x',speed:this.speed,initialPosition:this.initialPosition,tileSizeX:this.tileSizeX});
-       
-        //const mat = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // Green color
-       // clone.object3D.children[0].material = mat;
+      
     } 
 
      
