@@ -59,3 +59,66 @@ export function setToColor(object,color){  //Set all meshes within a game object
             }
         });
 }
+
+
+export function raycastToHitVertex(targets,camera,mouse= new THREE.Vector2(THREE.MathUtils.randFloatSpread(2),THREE.MathUtils.randFloatSpread(2))){
+    //scene is the object array to check against :I think
+    //mouse, will be a random screen position unless given the mouse
+    //mouse.x = THREE.MathUtils.randFloatSpread(2); // range [-1, 1]
+    //mouse.y = THREE.MathUtils.randFloatSpread(2); // range [-1, 1]
+
+    //console.log(mouse.toArray());
+
+    const raycaster = new THREE.Raycaster();
+    // Cast ray from camera through that point
+    raycaster.setFromCamera(mouse, camera);
+    //console.log(targets);
+    // Intersect with scene objects
+    const raycastTargets = [];
+    for(var i=0; i<targets.length;i++){
+        if (targets[i].visible){
+            raycastTargets.push(targets[i]);
+        }
+    }
+    //console.log(raycastTargets);
+    // targets.forEach(target => { //make sure only visible meshes are considered
+    //     if(target.isMesh && target.visible){
+    //         raycastTargets.push(obj);
+    //     }
+    // });
+    const intersects = raycaster.intersectObjects(raycastTargets, true);
+    
+
+    if (intersects.length > 0) {
+    const hit = intersects[0];
+    const geometry = hit.object.geometry;
+
+    if (geometry.isBufferGeometry) {
+        const positionAttr = geometry.attributes.position;
+        const vertices = [];
+
+        // Convert local vertices to world positions
+        for (let i = 0; i < positionAttr.count; i++) {
+        const vertex = new THREE.Vector3().fromBufferAttribute(positionAttr, i);
+        vertex.applyMatrix4(hit.object.matrixWorld);
+        vertices.push(vertex);
+        }
+
+        // Find nearest vertex to hit point
+        const hitPoint = hit.point;
+        let nearestVertex = vertices[0];
+        let minDist = hitPoint.distanceTo(nearestVertex);
+
+        for (let i = 1; i < vertices.length; i++) {
+        const dist = hitPoint.distanceTo(vertices[i]);
+        if (dist < minDist) {
+            minDist = dist;
+            nearestVertex = vertices[i];
+        }
+        }
+
+        //console.log('Nearest vertex world position:', nearestVertex);
+        return (nearestVertex);
+    }
+    }
+}

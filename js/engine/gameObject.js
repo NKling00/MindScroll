@@ -16,6 +16,7 @@ export class GameObject {
 
         this.debugInspector = null;
         this.name = 'name';
+        this.var ={}; //use this to store custom variables
         //TODO: add in a gui element that can be enabled for basic position,scale,rotation manipulation
     }
 

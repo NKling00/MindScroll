@@ -1,5 +1,4 @@
 import { update } from "three/examples/jsm/libs/tween.module.js";
-import {ObjectScript} from '/js/engine/objectScript.js';
 import * as utils from '/js/utils/utils.js';
 import * as THREE from 'three';
 

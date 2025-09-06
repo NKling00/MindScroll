@@ -1,20 +1,14 @@
+import { Story } from '/js/engine/story.js';
 import{quickModelLoad} from '/js/utils/threeHelpers.js';
 import {createMountainRange,cyberBrain } from '/js/assets/Objects.js';
 import {GameObject} from '/js/engine/GameObject.js';
 import * as scripts from '/js/assets/objScripts.js';
 import * as THREE from 'three';
 
-export class Scene2 {
+export class Scene2 extends Story {
     constructor(app) {
-        this.app = app;
-        this.objects = [];
-        this.gameObjects = [];
-        this.isVisible = false;
-        
-        this.clock = new THREE.Clock();
-
-        this.init();
-        this.hide(); //hide by default  
+       super(app);
+       this.name ='scene2';
     }
 
     init() {
@@ -99,26 +93,10 @@ export class Scene2 {
         
     }
 
-    show() {
-        this.isVisible = true;
-        this.objects.forEach(obj => {
-            obj.visible = true;
-        });
+    update(){
+        super.update();
+        console.log('scene2 Update:'+this.app.camera.position.y);
     }
 
-    hide() {
-        this.isVisible = false;
-        this.objects.forEach(obj => {
-            obj.visible = false;
-        });
-    }
-
-     update() {
-        if (!this.isVisible) return;
-
-        const deltaTime = this.clock.getDelta(); //get delta time for update
-        for (const obj of this.gameObjects) { //update all gameobjects by sending deltatime
-            obj.update(deltaTime); 
-        }
-    }
+    
 }

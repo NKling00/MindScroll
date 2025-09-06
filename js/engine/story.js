@@ -10,7 +10,20 @@ export class Story {
         this.gameObjects = [];
         this.isVisible = false;
         this.debugIndex = -1;
+        this.deltaTime =0;
+        this.storyCameraPosition = new THREE.Vector3().copy(this.app.camera.position);
         
+        this.camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+        this.camera.position.z = 5;
+
+        this.name = '';
+
+
         this.init();
         this.hide(); //hide all objects by default  
         this.setupDebugKeyboardControls();
@@ -58,17 +71,26 @@ export class Story {
     }
 
     show() {
+        console.log('show ' +this.name);
         this.isVisible = true;
         this.objects.forEach(obj => {
             obj.visible = true;
         });
+        //this.app.camera.position.copy(this.storyCameraPosition); //return to last camera position
+        setTimeout(()=>{ this.app.camera.position.y = this.storyCameraPosition.y;},25);
+        console.log(this.name+' moving camera back to '+ this.storyCameraPosition.toArray());
+        console.log(this.app.camera.position.toArray());
+        //setTimeout(()=>{this.app.camera.position.y= 0;},10);
     }
 
     hide() {
+        console.log('hide' + this.name);
         this.isVisible = false;
         this.objects.forEach(obj => {
             obj.visible = false;
         });
+        console.log(this.name+' saving camera position: '+ this.app.camera.position.toArray());
+        this.storyCameraPosition.copy(this.app.camera.position); //copy last camera position
     }
 
  
@@ -76,11 +98,11 @@ export class Story {
         //update loop. Loop calls gameobject update methods
         //extra animation logic can go here
         if (!this.isVisible) return;
-
-        const deltaTime = this.app.clock.getDelta(); //get delta time for update
+        
+        this.deltaTime = this.app.clock.getDelta(); //get delta time for update
         // const deltaTime = this.clock.getDelta(); //get delta time for update
         for (const obj of this.gameObjects) { //update all gameobjects by sending deltatime
-            obj.update(deltaTime); 
+            obj.update(this.deltaTime); 
         }
         
     }
@@ -89,22 +111,24 @@ export class Story {
     //debug controls
     setupDebugKeyboardControls(){ //ctrl + left and right
         window.addEventListener('keydown', (event) => {
-        if (event.ctrlKey) {
-            switch (event.key) {
-            case 'ArrowUp':
-                console.log('Ctrl + Arrow Up pressed');
-                break;
-            case 'ArrowDown':
-                console.log('Ctrl + Arrow Down pressed');
-                break;
-            case 'ArrowLeft':
-                console.log('Ctrl + Arrow Left pressed');
-                break;
-            case 'ArrowRight':
-                this.nextDebugObject();
-                break;
+            if (this.isVisible){
+                if (event.ctrlKey) {
+                    switch (event.key) {
+                    case 'ArrowUp':
+                        console.log('Ctrl + Arrow Up pressed');
+                        break;
+                    case 'ArrowDown':
+                        console.log('Ctrl + Arrow Down pressed');
+                        break;
+                    case 'ArrowLeft':
+                        console.log('Ctrl + Arrow Left pressed');
+                        break;
+                    case 'ArrowRight':
+                        this.nextDebugObject();
+                        break;
+                    }
+                }
             }
-        }
         });
     }
 

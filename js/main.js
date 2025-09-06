@@ -19,6 +19,7 @@ class ScrollytellingApp {
     constructor() {
         this.scene = null;
         this.camera = null;
+        this.currentCamera = null;
         this.renderer = null;
         this.scenes = {};
         this.currentScene = null;
@@ -32,8 +33,8 @@ class ScrollytellingApp {
         
         this.stat = null;
 
-        this.enableStats = true;
-        this.usingComposer =false; // Flag to toggle between composer and renderer
+        //this.enableStats = true;
+        this.usingComposer =true; // Flag to toggle between composer and renderer
 
         this.init();
     }
@@ -41,10 +42,11 @@ class ScrollytellingApp {
     init() {
         this.setupStats();
         this.setupMouseMove(); // event listener for mouse move
+        this.loadStories(); // need to load stories first to have cameras ready
         this.setupThreeJS();
         this.setupScrollController();
         this.setupAnimationManager();
-        this.loadScenes();
+        
         this.setupHTMLElementAnimation()
         this.animate();
     }
@@ -191,19 +193,18 @@ class ScrollytellingApp {
     setupThreeJS() {
         // Scene setup
         this.scene = new THREE.Scene();
-        
         this.scene.fog = new THREE.Fog(0xECECEB, 2, 40);
-        
         this.scene.background = new THREE.Color(0xECECEB);
-
         // Camera setup
-        this.camera = new THREE.PerspectiveCamera(
-            75,
-            window.innerWidth / window.innerHeight,
-            0.1,
-            1000
-        );
-        this.camera.position.z = 5;
+        this.storyCameras = [];
+        this.currentCameraIndex=0;
+        // this.camera = new THREE.PerspectiveCamera(
+        //     75,
+        //     window.innerWidth / window.innerHeight,
+        //     0.1,
+        //     1000
+        // );
+        // this.camera.position.z = 5;
 
         // Renderer setup
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -211,25 +212,26 @@ class ScrollytellingApp {
         this.renderer.setPixelRatio(window.devicePixelRatio);
         document.getElementById('canvas-container').appendChild(this.renderer.domElement);
         this.renderer.setClearColor(0xECECEB); 
-        //fix coloring for composer
+        //fix coloring for composer //probably dont need this
         this.renderer.outputEncoding = THREE.sRGBEncoding;
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = .6;
 
         // Post-processing setup
         this.composer = new EffectComposer(this.renderer);
-        
-        this.composer.addPass(new RenderPass(this.scene, this.camera));
 
-        this.bokehPass = new BokehPass(this.scene, this.camera, {
-        focus: 1.7,
-        aperture: 0.000669,
-        maxblur: 0.009,
+        this.storyCameras.forEach((cam)=>{
+            this.composer.addPass(new RenderPass(this.scene, this.cam));
 
-        width: window.innerWidth,
-        height: window.innerHeight
+            this.bokehPass = new BokehPass(this.scene, this.cam, {
+            focus: 1.7,
+            aperture: 0.000669,
+            maxblur: 0.009,
+
+            width: window.innerWidth,
+            height: window.innerHeight
+            });
         });
-
         this.composer.addPass(this.bokehPass);
 
         // Lighting
@@ -262,11 +264,13 @@ class ScrollytellingApp {
         this.animationManager = new AnimationManager(this);
     }
 
-    loadScenes() {
+    loadStories() {
         // Load individual scene modules
         this.scenes.title = new heroScene2(this);
+        this.storyCameras.push(this.scenes.title.camera); //add camera into camera system
         // this.scenes.hero = new HeroScene(this);
         this.scenes.scene1 = new Scene2(this);
+        this.storyCameras.push(this.scenes.scene1.camera);
         //this.scenes.scene2 = new Scene2(this);
       
         
@@ -280,8 +284,15 @@ class ScrollytellingApp {
         
         this.currentScene = this.scenes[sceneName];
         if (this.currentScene) {
+            this.currentCamera= this.currentScene.camera;
+            assignCameraToComposer(this.currentCamera);
             this.currentScene.show();
+            
         }
+    }
+
+    assignCameraToComposer(cam){
+        //might need to do a setup every time we switch cameras
     }
 
     onWindowResize() {
@@ -298,7 +309,7 @@ class ScrollytellingApp {
         }
         
         //choose renderer
-        if (!this.usingComposer){this.renderer.render(this.scene, this.camera);}
+        if (!this.usingComposer){this.renderer.render(this.scene, this.currentCamera);}
         else {this.composer.render();}
         if(this.enableStats){this.stats.end();}
 

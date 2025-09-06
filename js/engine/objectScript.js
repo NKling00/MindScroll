@@ -1,12 +1,12 @@
 export class ObjectScript {
   static parameters = { //these parameters do nothing on their own, but gameObject class reads them to use as defaults to pass the constructor
-    //example: { type: 'number', default: 1.0 },
+    //example: speed:{ type: 'number', default: 1.0 },
     
   };
 
   constructor(gameObject, params) {
     this.gameObject = gameObject;
-    //this.example = params.example;
+    //this.speed = params.speed;
   }
 
   update(deltaTime) {

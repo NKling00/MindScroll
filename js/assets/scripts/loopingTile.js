@@ -67,7 +67,8 @@ export default class loopingTile {
             console.log ('added the clone!!!!');
         }
         clone.addScript(loopingTile,{axis:'x',speed:this.speed,initialPosition:this.initialPosition,tileSizeX:this.tileSizeX});
-      
+        this.gameObject.var.tileClone = clone;
+       
     } 
 
      
