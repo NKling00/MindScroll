@@ -22,16 +22,24 @@ export const fresnelMaterial=(fcolor)=> {
 }
 
 
-export const glassMaterial = new THREE.MeshPhysicalMaterial({
+export const glass = new THREE.MeshPhysicalMaterial({
     color: 0xffffff,
 
   metalness: 0,
   roughness: 0,
-  transmission: 1.0,       // Enables real transparency
+  transmission: .8,       // Enables real transparency
   thickness: 0.5,           // Simulates depth for refraction
   ior: 1.5,                 // Index of refraction (glass ~1.5)
-  clearcoat: 1.0,           // Adds glossy layer
+  clearcoat: 0.0,           // Adds glossy layer
   clearcoatRoughness: 0.1,
-  opacity: 1.0,
+  opacity: 5.0,
   transparent: true
 });
+
+
+export const wireFrame = (color=0xb7b1b1)=>{
+    return new THREE.MeshBasicMaterial({
+    color:color,
+    wireframe:true,
+    });
+}

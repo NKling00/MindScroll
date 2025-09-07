@@ -20,6 +20,7 @@ class ScrollytellingApp {
         this.scene = null;
         this.camera = null;
         this.currentCamera = null;
+        this.storyCameras=[];
         this.renderer = null;
         this.scenes = {};
         this.currentScene = null;
@@ -34,7 +35,7 @@ class ScrollytellingApp {
         this.stat = null;
 
         //this.enableStats = true;
-        this.usingComposer =true; // Flag to toggle between composer and renderer
+        this.usingComposer =false; // Flag to toggle between composer and renderer
 
         this.init();
     }
@@ -42,11 +43,11 @@ class ScrollytellingApp {
     init() {
         this.setupStats();
         this.setupMouseMove(); // event listener for mouse move
-        this.loadStories(); // need to load stories first to have cameras ready
         this.setupThreeJS();
+       
         this.setupScrollController();
         this.setupAnimationManager();
-        
+        this.loadStories(); // keep this order / I broke it before by moving things
         this.setupHTMLElementAnimation()
         this.animate();
     }
@@ -196,15 +197,14 @@ class ScrollytellingApp {
         this.scene.fog = new THREE.Fog(0xECECEB, 2, 40);
         this.scene.background = new THREE.Color(0xECECEB);
         // Camera setup
-        this.storyCameras = [];
-        this.currentCameraIndex=0;
-        // this.camera = new THREE.PerspectiveCamera(
-        //     75,
-        //     window.innerWidth / window.innerHeight,
-        //     0.1,
-        //     1000
-        // );
-        // this.camera.position.z = 5;
+
+        this.camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+        this.camera.position.z = 5;
 
         // Renderer setup
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -220,10 +220,10 @@ class ScrollytellingApp {
         // Post-processing setup
         this.composer = new EffectComposer(this.renderer);
 
-        this.storyCameras.forEach((cam)=>{
-            this.composer.addPass(new RenderPass(this.scene, this.cam));
+        
+            this.composer.addPass(new RenderPass(this.scene, this.camera));
 
-            this.bokehPass = new BokehPass(this.scene, this.cam, {
+            this.bokehPass = new BokehPass(this.scene, this.camera, {
             focus: 1.7,
             aperture: 0.000669,
             maxblur: 0.009,
@@ -231,7 +231,7 @@ class ScrollytellingApp {
             width: window.innerWidth,
             height: window.innerHeight
             });
-        });
+        
         this.composer.addPass(this.bokehPass);
 
         // Lighting
@@ -267,14 +267,17 @@ class ScrollytellingApp {
     loadStories() {
         // Load individual scene modules
         this.scenes.title = new heroScene2(this);
-        this.storyCameras.push(this.scenes.title.camera); //add camera into camera system
+        // this.storyCameras.push(this.scenes.title.camera); //add camera into camera system
+        this.storyCameras[0]= this.scenes.title;   
+       
         // this.scenes.hero = new HeroScene(this);
         this.scenes.scene1 = new Scene2(this);
-        this.storyCameras.push(this.scenes.scene1.camera);
-        //this.scenes.scene2 = new Scene2(this);
+        this.storyCameras[1]= this.scenes.title;  
+        //this.storyCameras.push(this.scenes.scene1.camera);
+            //this.scenes.scene2 = new Scene2(this);
       
-        
-        
+        this.currentCamera = this.storyCameras[0];
+        console.log('camera:'+ this.currentCamera);
     }
 
     switchScene(sceneName) {
@@ -285,7 +288,7 @@ class ScrollytellingApp {
         this.currentScene = this.scenes[sceneName];
         if (this.currentScene) {
             this.currentCamera= this.currentScene.camera;
-            assignCameraToComposer(this.currentCamera);
+           // assignCameraToComposer(this.currentCamera);
             this.currentScene.show();
             
         }
@@ -296,8 +299,8 @@ class ScrollytellingApp {
     }
 
     onWindowResize() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
+        this.currentCamera.aspect = window.innerWidth / window.innerHeight;
+        this.currentCamera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
@@ -306,10 +309,12 @@ class ScrollytellingApp {
         if(this.enableStats){this.stats.begin();}
         if (this.currentScene) {
             this.currentScene.update();
+            this.currentScene.cleanUp();
         }
         
         //choose renderer
-        if (!this.usingComposer){this.renderer.render(this.scene, this.currentCamera);}
+        
+        if (!this.usingComposer && this.currentCamera.isCamera){this.renderer.render(this.scene, this.currentCamera);}
         else {this.composer.render();}
         if(this.enableStats){this.stats.end();}
 

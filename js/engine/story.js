@@ -11,7 +11,7 @@ export class Story {
         this.isVisible = false;
         this.debugIndex = -1;
         this.deltaTime =0;
-        this.storyCameraPosition = new THREE.Vector3().copy(this.app.camera.position);
+       
         
         this.camera = new THREE.PerspectiveCamera(
             75,
@@ -41,7 +41,7 @@ export class Story {
 
     addToStory(object) { //Use this method to add objects to this story
         if (object instanceof GameObject) {
-            console.log('Adding GameObject to scene:', object);
+           // console.log('Adding GameObject to scene:', object);
             object.addToScene(this.app.scene);  // Add to scene(uses the method in GameObject)
             this.gameObjects.push(object); // Add to gameObjects for update loop
             this.objects.push(object.object3D); //add to objects for scene Control
@@ -71,26 +71,21 @@ export class Story {
     }
 
     show() {
-        console.log('show ' +this.name);
+        console.log('show story ' +this.name);
         this.isVisible = true;
         this.objects.forEach(obj => {
             obj.visible = true;
         });
-        //this.app.camera.position.copy(this.storyCameraPosition); //return to last camera position
-        setTimeout(()=>{ this.app.camera.position.y = this.storyCameraPosition.y;},25);
-        console.log(this.name+' moving camera back to '+ this.storyCameraPosition.toArray());
-        console.log(this.app.camera.position.toArray());
-        //setTimeout(()=>{this.app.camera.position.y= 0;},10);
+        
     }
 
     hide() {
-        console.log('hide' + this.name);
+        console.log('hide story' + this.name);
         this.isVisible = false;
         this.objects.forEach(obj => {
             obj.visible = false;
         });
-        console.log(this.name+' saving camera position: '+ this.app.camera.position.toArray());
-        this.storyCameraPosition.copy(this.app.camera.position); //copy last camera position
+       
     }
 
  
@@ -132,6 +127,10 @@ export class Story {
         });
     }
 
+    cleanUp(){ //filter out any objects with a cleanup flag
+        this.gameObjects = this.gameObjects.filter(obj => !obj.cleanUpFlag);
+
+    }
 
 
 

@@ -17,7 +17,8 @@ export class GameObject {
         this.debugInspector = null;
         this.name = 'name';
         this.var ={}; //use this to store custom variables
-        //TODO: add in a gui element that can be enabled for basic position,scale,rotation manipulation
+
+        this.cleanUpFlag = false;
     }
 
     addScript(ScriptClass, params = {}) {
@@ -167,5 +168,39 @@ export class GameObject {
     
      }
 
+    dispose() {
+       // console.log('disposing!!!!');
+        this.cleanUpFlag = true;
+    // Remove from parent or scene
+        if (this.object3D.parent) {
+            this.object3D.parent.remove(this);
+        }
+
+        // Traverse and dispose resources
+        this.object3D.traverse(obj => {
+            if (obj.geometry) {
+                obj.geometry.dispose();
+            }
+
+            if (obj.material) {
+                if (Array.isArray(obj.material)) {
+                obj.material.forEach(mat => this.disposeMaterial(mat));
+                } else {
+                this.disposeMaterial(obj.material);
+                }
+            }
+        });
+    }
+
+    disposeMaterial(material) {
+    // Dispose textures
+        for (const key in material) {
+            const value = material[key];
+            if (value && value.isTexture) {
+                value.dispose();
+            }
+        }
+        material.dispose();
+    }
 
 }

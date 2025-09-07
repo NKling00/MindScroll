@@ -95,7 +95,7 @@ export class Scene2 extends Story {
 
     update(){
         super.update();
-        console.log('scene2 Update:'+this.app.camera.position.y);
+       
     }
 
     
