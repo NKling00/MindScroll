@@ -22,13 +22,16 @@ export class heroScene2 extends Story{
         this.spawnTimer =0;
         this.animateUp;
         this.name = 'scene1';
+        
     }
 
     createScene(){
-       
-        this.object = new GameObject(cyberBrain());
-        this.object.setPosition(-2,0,0);
 
+
+        //animate the camera to scroll
+        this.animateCameraY();
+       
+        //landscape Mesh
         this.landscape = new GameObject();
         this.landscape.loadModelToStory('models/Landscape2.glb',this,()=>{
             const wireframeMaterial = new THREE.MeshBasicMaterial({
@@ -47,9 +50,8 @@ export class heroScene2 extends Story{
             
         });
 
-        //animate the camera to scroll
-        this.animatelandscapeY();
-
+        
+        //Balloon Spawner
         this.balloonSpawner = new GameObject();
         this.balloonSpawner.var.currSpawnPoint = new THREE.Vector3();
         this.balloonSpawner.addScript(instanceSpawner,{object:bubblePrefab,story:this,spawnPoint:this.balloonSpawner.var.currSpawnPoint});
@@ -71,48 +73,75 @@ export class heroScene2 extends Story{
       
         // this.laptop.addScript(scripts.lookAtMouse,{app:this.app});
         
-        
-        // this.bubble =  new GameObject();
-        // this.bubble.name = 'bubble';
-        // const bubble3D = new THREE.OctahedronGeometry(1,1);
-        // // const bubble3D = new THREE.SphereGeometry(1,30,30);
-       
-        // const bubbleMat = materials.glass;
-        
-      
-        // this.bubble.object3D = new THREE.Mesh(bubble3D,bubbleMat);
-
-        // const bubbleFrame = new THREE.Mesh(bubble3D.clone(),materials.wireFrame(0x000000));
-        // this.bubble.object3D.add(bubbleFrame);
-
-        // this.bubble.object3D.position.set(100,-4.14,-10);
-        // this.bubble.object3D.scale.set(.6,.6,.6);
-
-
-        // this.addToStory(this.bubble);
-        
-
-        // this.led = new GameObject();
-        // this.led.object3D = new THREE.PointLight(0xe05024,100,0);
-        // this.led.name = 'light';
-        // this.addToStory(this.led);
-        // this.ledHelper = new THREE.PointLightHelper(this.led.object3D,1);
-        // this.app.scene.add(this.ledHelper);
     }
 
     setupAnimations(){
         // Setup any GSAP animations or ScrollTriggers specific to this scene here
+         // Animate the module title       
+        //gsap.from(".moduleTitle", {opacity: 0, duration: 4, delay: 1,ease:'power2.inOut'});
+        const moduleTitle = document.getElementById('moduleTitle');
+        const parentContainer = document.getElementsByClassName('hero-section');
+        moduleTitle.style.opacity = 0;
+        ScrollTrigger.create({
+            trigger: moduleTitle,
+            start: " top+=150 top ", //when the top +150 hits the top of the element
+            endTrigger: parentContainer[0],
+            end: "bottom bottom", // ends when bottom of element hit bottom of parent element
+            //markers:true,
+            pin: true,
+            pinSpacing: true, // adds space after the pinned element           
+            onEnter: ()=>{
+                gsap.to(moduleTitle,{opacity:1,duration:5,delay:1,ease:'power1:inOut'});
+            },  
+            onUpdate: self => {
+                if (self.progress > 0.6) {
+                    gsap.to(moduleTitle, {opacity: 0,duration: 1.5,ease: "power1.out"});
+                }
+                else {
+                    gsap.to(moduleTitle, {opacity: 1,duration: 5,ease: "power1.out"});
+                }
+            }
 
-        // this.scrollTween = gsap.to(this.landscape.object3D.position, {
-        // y: 100,
-        // duration:2,
-        // onUpdate: () => console.log(this.landscape.object3D.position.y)
-        // });
+            // onLeave: () => {
+            //     gsap.to(".moduleTitle", { opacity: 0, duration: 2 });
+            //     }
 
-        console.log('HERE!');
+        });
+
+         // Animate the "?""
+        //gsap.from("#titleQ", {opacity: 0,duration: 4,delay: 1,ease: "power2.inOut"});
+
+        gsap.from('#titleQ',{y:-150,duration: 2,delay:1.5,ease: "power2.Out"});
+
+        const questionMark = document.getElementById('titleQ');
+        questionMark.style.opacity = 0;
+        ScrollTrigger.create({
+            trigger: '#titleQ',
+            start: " top top ", //when the top +150 hits the top of the element
+            endTrigger: parentContainer[0],
+            end: "bottom-=50% bottom ", // ends when bottom of element hit bottom of parent element
+            markers:true,
+            pin: true,
+            pinSpacing: true, // adds space after the pinned element           
+             
+            onUpdate: self => {
+                if (self.progress > 0.6) {
+                    gsap.to('#titleQ', {opacity: 0,duration:2,ease: "power1.out"});
+                }
+                else {
+                    gsap.to('#titleQ', {opacity: 1,duration:4,delay:1,ease: "power1.out"});
+                }
+            }
+        });
+            // onLeave: () => {
+            //     gsap.to(".moduleTitle", { opacity: 0, duration: 2 });
+            //     }
+
+
+
     }
 
-    animatelandscapeY(){
+    animateCameraY(){
         const tween = gsap.to(this.camera.position, {
         y: -5,
         scrollTrigger:{
@@ -120,10 +149,20 @@ export class heroScene2 extends Story{
             start:'top top',
             end:'bottom bottom',
             scrub:2,
-            markers:true,
+            //markers:true,
             // onUpdate:()=>{console.log(this.camera.position.y)},
-        }
+            }
         });
+
+        gsap.to(this.camera.rotation,{
+            x:.3,
+            scrollTrigger:{
+            trigger:'.hero-section',
+            start:'top top',
+            end:'bottom bottom',
+            scrub:2,
+            }
+        })
     }
 
 
@@ -132,23 +171,18 @@ export class heroScene2 extends Story{
 
         
         this.spawnTimer += this.deltaTime;
-        //console.log(this.spawnTimer);
-        if (this.spawnTimer >=  .2){
+
+        if (this.spawnTimer >=  .2){  //throttle the raycast
             this.spawnTimer =0;
-            // this.bubble.object3D.position.x=1000;
-            // if (this.bubble.var.animateUp)this.bubble.var.animateUp.kill();
-            // if (this.bubble.var.scale)this.bubble.var.scale.kill();
-            // if (this.bubble.var.animateRot)this.bubble.var.animateRot.kill();
-           
-           const targets=[];
+            const targets=[];
             this.gameObjects.forEach((obj)=>{
                 targets.push(obj.object3D);
             });
-           const nearestVert = helper.raycastToHitVertex(targets,this.camera,new THREE.Vector2(utils.randomRange(-1,1),utils.randomRange(-1,0))); //,this.app.mouse
-           if (nearestVert != undefined){ // set the bubbles position to the returned nearest vert
+            const nearestVert = helper.raycastToHitVertex(targets,this.camera,new THREE.Vector2(utils.randomRange(-1,1),utils.randomRange(-1,0))); //,this.app.mouse
+            if (nearestVert != undefined){ // set the bubbles position to the returned nearest vert
 
             this.balloonSpawner.var.currSpawnPoint.copy(nearestVert);
-            console.log(this.balloonSpawner.var.currSpawnPoint);
+            
 
             /*
             this.bubble.setPosition(nearestVert.x,nearestVert.y,nearestVert.z);

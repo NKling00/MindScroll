@@ -53,7 +53,7 @@ export class Story {
         }
     }
 
-    nextDebugObject(){
+    nextDebugObject(){ // jump to next object in the debug list. Will probably need to adjust this because of the issue of objects being removed off the list with garbage collection
         if(this.debugIndex!= -1){this.gameObjects[this.debugIndex].disableDebugMode();} //disable last one
         this.debugIndex++;
         console.log('debug index: '+this.debugIndex + ' / '+ this.gameObjects.length);

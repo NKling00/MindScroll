@@ -45,7 +45,7 @@ backdrop-filter: blur(1.5px);
 }
 #titleQ {
     position:absolute;
-    top:-8vh;
+    top:-2vh;
     left: 55vw;
     font-size: 59rem;
     font-weight: 600;

@@ -171,13 +171,15 @@ export class GameObject {
     dispose() {
        // console.log('disposing!!!!');
         this.cleanUpFlag = true;
-    // Remove from parent or scene
+        
+    // Remove from parent or scene , this has been tested and works
         if (this.object3D.parent) {
-            this.object3D.parent.remove(this);
+            this.object3D.parent.remove(this.object3D);
         }
 
         // Traverse and dispose resources
         this.object3D.traverse(obj => {
+            //console.log(obj.geometry);
             if (obj.geometry) {
                 obj.geometry.dispose();
             }

@@ -16,6 +16,7 @@ export default class balloonUp {
     if (this.gameObject.object3D.position.y >= 15 && !this.destroyed){ //when we reach the top destroy
         this.gameObject.dispose();
         this.destroyed =true;
+        
     }
   }
   start(){ //assign gsap functions at start

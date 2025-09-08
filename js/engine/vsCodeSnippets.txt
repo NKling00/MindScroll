@@ -1,0 +1,29 @@
+"ObjectScript Class": {
+    "prefix": "objectscript",
+    "body": [
+      "import * as THREE from 'three';",
+      "export default class ${TM_FILENAME_BASE} {",
+      "  static parameters = {",
+      "    //example: speed:{ type: 'number', default: 1.0 },",
+      "  };",
+      "",
+      "  constructor(gameObject, params) {",
+      "    this.gameObject = gameObject;",
+      "    //this.speed = params.speed;",
+      "  }",
+      "",
+      "  update(deltaTime) {",
+      "    //update logic goes here",
+      "    //ex: this.gameObject.object3D.rotation.x += this.speed * deltaTime;",
+      "  }",
+      "",
+      "  start() {",
+      "",
+      "  }",
+      "}"
+    ],
+    "description": "Creates a basic ObjectScript class for use with THREE.js and gameObject logic."
+  }
+
+
+  

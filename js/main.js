@@ -61,35 +61,22 @@ class ScrollytellingApp {
 
     setupHTMLElementAnimation() {
         // Animate the module title       
-        ScrollTrigger.create({
-        trigger: ".moduleTitle",
-        start: " top+=150 top ",
-        end: "bottom -20%", // how long to pin (in pixels)
-        pin: true,
-        pinSpacing: true, // adds space after the pinned element
-       // markers: true,
-        onEnterBack:() =>{
-            console.log('on enter title');
-            gsap.to(".moduleTitle",{opacity:1,duration:5});},
-        onLeave: () => {
-            gsap.to(".moduleTitle", { opacity: 0, duration: 2 });
-            }
+    //     ScrollTrigger.create({
+    //     trigger: ".moduleTitle",
+    //     start: " top+=150 top ",
+    //     end: "bottom -20%", // how long to pin (in pixels)
+    //     pin: true,
+    //     pinSpacing: true, // adds space after the pinned element
+    //    // markers: true,
+    //     onEnterBack:() =>{
+    //         console.log('on enter title');
+    //         gsap.to(".moduleTitle",{opacity:1,duration:5});},
+    //     onLeave: () => {
+    //         gsap.to(".moduleTitle", { opacity: 0, duration: 2 });
+    //         }
 
-        });
-        // Animate the title element
-        gsap.from("#titleQ", {
-            opacity: 0,
-            duration: 4,
-            delay: 3,
-            ease: "power2.inOut"
-        });
-
-        gsap.from('#titleQ',{
-            y:-150,
-            duration: 2,
-            delay:3.5,
-            ease: "power2.Out"
-        });
+    //     });
+       
 
 
         //brain Video test
@@ -253,7 +240,7 @@ class ScrollytellingApp {
 
     //animate aperture racking into focus on start
     gsap.from(this.bokehPass.uniforms.aperture, {value: 0.01,duration: 2,delay: 1});
-    gsap.from(".moduleTitle", {opacity: 0, duration: 5, delay: 1,ease:'power2.inOut'});
+    
     }
 
     setupScrollController() {
