@@ -5,6 +5,7 @@ import { cyberBrain } from '/js/assets/Objects';
 import { add } from 'three/tsl';
 import { createInspector } from '/js/utils/inspector';
 import {GUI} from 'three/examples/jsm/libs/lil-gui.module.min.js';
+import lottie from "lottie-web"
 import * as THREE from 'three';
 import * as utils from '/js/utils/utils.js';
 import * as helper from '/js/utils/threeHelpers.js';
@@ -136,7 +137,33 @@ export class heroScene2 extends Story{
             // onLeave: () => {
             //     gsap.to(".moduleTitle", { opacity: 0, duration: 2 });
             //     }
+        const lottieBrainAnim = lottie.loadAnimation({
+            container: document.getElementById('lottieBrain'),
+            renderer:'svg',
+            loop:true,
+            autoplay:true,
+            path:'media/AI_Brain.json'
+        })
 
+        const lottieElem = document.getElementById('lottieBrain');
+         ScrollTrigger.create({
+            trigger: lottieElem,
+            start: " top+=150 top ", //when the top +150 hits the top of the element
+            endTrigger: parentContainer[0],
+            end: "bottom bottom", // ends when bottom of element hit bottom of parent element
+            //markers:true,
+            pin: true,
+            pinSpacing: false, // adds space after the pinned element           
+            
+            onUpdate: self => {
+                if (self.progress > 0.6) {
+                    gsap.to(lottieElem, {opacity: 0,duration: 1.5,ease: "power1.out"});
+                }
+                else {
+                    gsap.to(lottieElem, {opacity: 1,duration: 5,ease: "power1.out"});
+                }
+            }
+        });
 
 
     }

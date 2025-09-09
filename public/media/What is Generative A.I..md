@@ -32,5 +32,41 @@ Unlike traditional AI, which is often used for tasks like classification or pred
 
 
 
-This 
+
+
+
+
+#### But with great power comes great responsibility—and risk.
+
+&nbsp;	>Shift of tone to darker
+
+Unfortunately, generative AI can also be used by cybercriminals to craft more convincing and scalable attacks.
+
+
+
+
+
+
+
+
+
+
+
+
+
+Needed Assets:
+
+3 ai image examples
+
+3 audio recording examples + 3 3d music notes
+
+1 email popup
+
+
+
+To DO:
+
+Figure out what the shift is going to look like. 
+
+
 
