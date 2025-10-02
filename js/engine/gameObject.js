@@ -43,6 +43,11 @@ export class GameObject {
         return scriptInstance;
     }
 
+    getComponent(componentName) {
+        // Find component by class name (constructor name) // Uses actual classname listed ,does not need a name attribute
+        return this.scripts.find(script => script.constructor.name === componentName);
+    }
+
     update(deltaTime) {
         for (const script of this.scripts) {
             if (typeof script.update === 'function') {

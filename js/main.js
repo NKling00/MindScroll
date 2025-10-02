@@ -203,7 +203,7 @@ class ScrollytellingApp {
         this.renderer.outputEncoding = THREE.sRGBEncoding;
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = .6;
-
+        this.renderer.localClippingEnabled = true;
         // Post-processing setup
         this.composer = new EffectComposer(this.renderer);
 

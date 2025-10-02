@@ -14,6 +14,7 @@ import loopingTile from '/js/assets/scripts/loopingTile.js';
 import move from '/js/assets/scripts/move.js';
 import instanceSpawner from '/js/assets/scripts/instanceSpawner.js';
 import bubblePrefab from '/js/assets/prefab/bubblePrefab.js';
+import phaseClipping from '/js/assets/scripts/phaseClipping.js';
 
 import * as materials from '/js/assets/materials.js';
 
@@ -53,26 +54,35 @@ export class heroScene2 extends Story{
 
         
         //Balloon Spawner
-        this.balloonSpawner = new GameObject();
-        this.balloonSpawner.var.currSpawnPoint = new THREE.Vector3();
-        this.balloonSpawner.addScript(instanceSpawner,{object:bubblePrefab,story:this,spawnPoint:this.balloonSpawner.var.currSpawnPoint});
-        this.addToStory(this.balloonSpawner);
+        // this.balloonSpawner = new GameObject();
+        // this.balloonSpawner.var.currSpawnPoint = new THREE.Vector3();
+        // this.balloonSpawner.addScript(instanceSpawner,{object:bubblePrefab,story:this,spawnPoint:this.balloonSpawner.var.currSpawnPoint});
+        // this.addToStory(this.balloonSpawner);
 
        
-        // this.laptop = new GameObject();
-        // this.laptop.loadModelToStory('models/laptop01.glb',this,
-        //     ()=>{
-        //         this.laptop.setPosition(2,-1,0);
-        //         this.laptop.setScale(.8,.8,.8);
-        //         this.laptop.disableFogMaterials();
+        this.laptop = new GameObject();
+        this.laptop.loadModelToStory('models/laptop01.glb',this,
+            ()=>{
+                  this.laptop.setPosition(2,-3.5,1);
+                  //this.laptop.setPosition(0,0,5);
+                 this.laptop.setScale(.8,.8,.8);
+                this.laptop.disableFogMaterials();
                 
-        //         this.laptop.SetScrollAnimate('animation_0','.hero-section');
-        //         this.laptop.addScript(scripts.HoverScript,{amplitude:.2});
-        //         //this.newObj.playAnimationOnce('animation_0',()=>{console.log('callback!')});
-                
-        //     });
-      
-        // this.laptop.addScript(scripts.lookAtMouse,{app:this.app});
+                this.laptop.SetScrollAnimate('animation_0','.hero-section');
+                this.laptop.addScript(scripts.HoverScript,{amplitude:.2});
+                //this.newObj.playAnimationOnce('animation_0',()=>{console.log('callback!')});
+                //this.camera.add(this.laptop.object3D);
+                this.laptop.addScript(phaseClipping,{ speed: .80,direction:'up',loop:true });
+                const clipper = this.laptop.getComponent('phaseClipping');
+                if(clipper){
+                    console.log('clipper found');
+                    //clipper.show();
+                     clipper.hide();
+                    // clipper.setHeightPercentage(.5);
+                }
+            });
+        
+        this.laptop.addScript(scripts.lookAtMouse,{app:this.app});
         
     }
 
@@ -208,7 +218,9 @@ export class heroScene2 extends Story{
             const nearestVert = helper.raycastToHitVertex(targets,this.camera,new THREE.Vector2(utils.randomRange(-1,1),utils.randomRange(-1,0))); //,this.app.mouse
             if (nearestVert != undefined){ // set the bubbles position to the returned nearest vert
 
-            this.balloonSpawner.var.currSpawnPoint.copy(nearestVert);
+            if (this.balloonSpawner ){
+                this.balloonSpawner.var.currSpawnPoint.copy(nearestVert);
+            }
             
 
             /*
