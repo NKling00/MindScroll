@@ -1,6 +1,6 @@
 import {ScrollController} from '/js/utils/scrollController.js';
 import {AnimationManager} from '/js/utils/animationManager.js';
-import {HeroScene} from '/js/scenes/scene1.js';
+import {Scene1} from '/js/scenes/scene1.js';
 import {heroScene2} from '/js/scenes/heroScene2.js';
 import {Scene2} from '/js/scenes/scene2.js';
 

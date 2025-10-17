@@ -6,7 +6,7 @@ import {GameObject} from '/js/engine/gameObject.js';
 import { createInspector } from '/js/utils/inspector.js';
 
 
-export class HeroScene {
+export class Scene1 {
     constructor(app) {
         this.app = app;
         this.objects = [];

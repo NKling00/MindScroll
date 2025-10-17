@@ -15,6 +15,7 @@ import move from '/js/assets/scripts/move.js';
 import instanceSpawner from '/js/assets/scripts/instanceSpawner.js';
 import bubblePrefab from '/js/assets/prefab/bubblePrefab.js';
 import phaseClipping from '/js/assets/scripts/phaseClipping.js';
+import wireCopy from '/js/assets/scripts/wireCopy.js';
 
 import * as materials from '/js/assets/materials.js';
 
@@ -63,23 +64,23 @@ export class heroScene2 extends Story{
         this.laptop = new GameObject();
         this.laptop.loadModelToStory('models/laptop01.glb',this,
             ()=>{
-                  this.laptop.setPosition(2,-3.5,1);
-                  //this.laptop.setPosition(0,0,5);
-                 this.laptop.setScale(.8,.8,.8);
+                this.laptop.setPosition(2,-3.5,1);
+                this.laptop.setScale(.8,.8,.8);
                 this.laptop.disableFogMaterials();
                 
                 this.laptop.SetScrollAnimate('animation_0','.hero-section');
                 this.laptop.addScript(scripts.HoverScript,{amplitude:.2});
                 //this.newObj.playAnimationOnce('animation_0',()=>{console.log('callback!')});
                 //this.camera.add(this.laptop.object3D);
-                this.laptop.addScript(phaseClipping,{ speed: .80,direction:'up',loop:true });
-                const clipper = this.laptop.getComponent('phaseClipping');
-                if(clipper){
-                    console.log('clipper found');
-                    //clipper.show();
-                     clipper.hide();
-                    // clipper.setHeightPercentage(.5);
-                }
+
+                // this.laptop.addScript(phaseClipping,{ speed: .80,direction:'up',loop:true });
+                // const clipper = this.laptop.getComponent('phaseClipping');
+                // if(clipper){
+                //    clipper.startClipping();
+                // }
+
+                this.laptop.addScript(wireCopy,{color:0xb7b1b1,scale:1.05});
+                // const wireObj = this.laptop.addScript(wireCopy,{color:0xb7b1b1,scale:1.05});
             });
         
         this.laptop.addScript(scripts.lookAtMouse,{app:this.app});
@@ -191,15 +192,15 @@ export class heroScene2 extends Story{
             }
         });
 
-        gsap.to(this.camera.rotation,{
-            x:.3,
-            scrollTrigger:{
-            trigger:'.hero-section',
-            start:'top top',
-            end:'bottom bottom',
-            scrub:2,
-            }
-        })
+        // gsap.to(this.camera.rotation,{
+        //     x:.3,
+        //     scrollTrigger:{
+        //     trigger:'.hero-section',
+        //     start:'top top',
+        //     end:'bottom bottom',
+        //     scrub:2,
+        //     }
+        // })
     }
 
 
