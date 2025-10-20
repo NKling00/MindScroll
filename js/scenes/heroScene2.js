@@ -16,6 +16,7 @@ import instanceSpawner from '/js/assets/scripts/instanceSpawner.js';
 import bubblePrefab from '/js/assets/prefab/bubblePrefab.js';
 import phaseClipping from '/js/assets/scripts/phaseClipping.js';
 import wireCopy from '/js/assets/scripts/wireCopy.js';
+import syncAnimation from '/js/assets/scripts/syncAnimation.js';
 
 import * as materials from '/js/assets/materials.js';
 
@@ -73,14 +74,24 @@ export class heroScene2 extends Story{
                 //this.newObj.playAnimationOnce('animation_0',()=>{console.log('callback!')});
                 //this.camera.add(this.laptop.object3D);
 
-                // this.laptop.addScript(phaseClipping,{ speed: .80,direction:'up',loop:true });
-                // const clipper = this.laptop.getComponent('phaseClipping');
-                // if(clipper){
-                //    clipper.startClipping();
-                // }
+                 this.laptop.addScript(phaseClipping,{ speed: .30,direction:'down',loop:false });
+                const clipper = this.laptop.getComponent('phaseClipping');
+                if(clipper){
+                  setTimeout(()=>{clipper.startClipping();},3000);
+                }
 
-                this.laptop.addScript(wireCopy,{color:0xb7b1b1,scale:1.05});
-                // const wireObj = this.laptop.addScript(wireCopy,{color:0xb7b1b1,scale:1.05});
+                //Create a wire copy, add a phase clip to it
+                //to do make a script that creates a wire copy and adds a phase clip to it
+                 const wireComponent = this.laptop.addScript(wireCopy,{scale:1.01, story:this});
+                 const wireObj =  wireComponent.wireGameObj;
+                 console.log(wireObj);
+                 wireObj.addScript(phaseClipping,{speed:.2,direction:'down',loop:true,downPauseTime:4000});
+                const clipper2 = wireObj.getComponent('phaseClipping');
+                if(clipper2){
+                    clipper2.startClipping();
+                }
+                wireObj.addScript(syncAnimation,{targetGameObject:this.laptop});
+                
             });
         
         this.laptop.addScript(scripts.lookAtMouse,{app:this.app});

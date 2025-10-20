@@ -21,6 +21,13 @@ export class GameObject {
         this.cleanUpFlag = false;
     }
 
+
+    /**
+     * Adds a script to the GameObject
+     * @param {ScriptClass} ScriptClass - The script class to add
+     * @param {Object} params - The parameters to pass to the script
+     * @returns {ScriptInstance} The script instance that was added
+     */
     addScript(ScriptClass, params = {}) {
         // Get default parameters from the script class
         const defaults = ScriptClass.parameters || {};

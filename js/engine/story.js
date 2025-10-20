@@ -39,7 +39,7 @@ export class Story {
         
     }
 
-    addToStory(object) { //Use this method to add objects to this story
+    addToStory(object) { //Use this method to add objects to this story //If you try to add a game object that has a 3dObject that is a child of another object that is already added to the scene it will cause a problem!!
         if (object instanceof GameObject) {
            // console.log('Adding GameObject to scene:', object);
             object.addToScene(this.app.scene);  // Add to scene(uses the method in GameObject)

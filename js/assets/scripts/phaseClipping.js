@@ -7,6 +7,9 @@ export default class phaseClipping {
     autoStart: { type: 'boolean', default: false }, // Whether to start clipping automatically
     direction: { type: 'string', default: 'down' }, // 'down' or 'up' - direction of clipping
     loop: { type: 'boolean', default: false }, // Whether to loop the clipping animation
+    completeCallBack: { type: 'function', default: null }, // Callback function to be called when loop ends
+    upPauseTime: { type: 'number', default: 0 }, // Time to pause when going up
+    downPauseTime: { type: 'number', default: 0 }, // Time to pause when going down
   };
 
   constructor(gameObject, params) {
@@ -29,10 +32,14 @@ export default class phaseClipping {
     
     // Animation state
     this.isClipping = false;
+    this.isPaused = false; // Track if animation is paused during loop
     this.currentHeight = 1.0; // Start at 100% (fully visible)
     this.targetHeight = 1.0;
     
     this.setupClipping();
+    this.completeCallBack = params.completeCallBack;
+    this.upPauseTime = params.upPauseTime;
+    this.downPauseTime = params.downPauseTime;
   }
 
   setupClipping() {
@@ -48,6 +55,8 @@ export default class phaseClipping {
   }
 
   updateBounds() {
+    // Force matrix update to ensure accurate world position
+    this.gameObject.object3D.updateMatrixWorld(true);
     this.boundingBox.setFromObject(this.gameObject.object3D);
     this.objectHeight = this.boundingBox.max.y - this.boundingBox.min.y;
     this.objectTop = this.boundingBox.max.y;
@@ -112,6 +121,7 @@ export default class phaseClipping {
     this.currentHeight = 1.0;
     this.targetHeight = 1.0;
     this.isClipping = false;
+    this.isPaused = false;
     this.updateClippingPlane();
   }
 
@@ -140,25 +150,37 @@ export default class phaseClipping {
         } else {
           this.currentHeight = Math.max(this.targetHeight, this.currentHeight - movement);
         }
-        
-        this.updateClippingPlane();
       } else {
-        // reset and flip direction
-        if(this.loop){
-          this.reset();
-          this.direction = this.direction === 'down' ? 'up' : 'down';
-          this.startClipping();
-        }
-        else{
-          this.startClipping(this.targetHeight);
+        // Only execute once when reaching target
+        if (!this.isPaused) {
+          if(this.completeCallBack){
+            this.completeCallBack(this.gameObject,this.direction);
+          }
+          // reset and flip direction
+          if(this.loop){
+            this.isPaused = true; // Set pause flag to prevent multiple setTimeout calls
+            var pauseTime = 0;
+            if(this.direction === 'down'){pauseTime = this.downPauseTime;}
+            else{pauseTime = this.upPauseTime;}
+            setTimeout(()=>{
+              this.reset();
+              this.direction = this.direction === 'down' ? 'up' : 'down';
+              this.startClipping();
+            },pauseTime);
+          }
+          else{
+            this.startClipping(this.targetHeight);
 
-          //Reached target, stop clipping animation
-          this.currentHeight = this.targetHeight;
-          this.isClipping = false;
+            //Reached target, stop clipping animation
+            this.currentHeight = this.targetHeight;
+            this.isClipping = false;
+          }
         }
-        this.updateClippingPlane();
       }
     }
+    
+    // Always update clipping plane to follow object movement (e.g., hover animations)
+    this.updateClippingPlane();
   }
 
   start() {
