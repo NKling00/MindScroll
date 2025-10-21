@@ -1,9 +1,22 @@
-const scene1 = new titleStory();
-const scene2 = new Scene2();
-const scene3 = new Scene3();
 
-const element1 = document.getElementById('canvas-container');
-const element2 = document.getElementById('canvas-container');
-const element3 = document.getElementById('canvas-container');
+import { ScrollForm } from '/js/scrollForm.js';
+import { titleStory } from '/js/scenes/titleStory.js';
+import { Scene2 } from '/js/scenes/scene2.js';
 
-const mindScroll = new ScrollForm([element1,element2,element3],[scene1,scene2,scene3]);
+
+
+const story1 = titleStory;
+
+
+const stories = [story1];
+
+const element1 = document.getElementById('title_THREEBG');
+console.log (element1);
+const elements = [element1];
+
+//create scrollform
+//instantiates scenes and assigns them to elements
+document.addEventListener('DOMContentLoaded', () => { //wait for dom to load
+    //to do :wait for each file to load
+    const mindScroll = new ScrollForm(elements,stories);
+});

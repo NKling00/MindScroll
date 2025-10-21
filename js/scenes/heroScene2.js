@@ -29,7 +29,7 @@ export class heroScene2 extends Story{
         
     }
 
-    createScene(){
+    setupObjects(){
 
 
         //animate the camera to scroll

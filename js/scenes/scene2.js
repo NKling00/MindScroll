@@ -11,12 +11,9 @@ export class Scene2 extends Story {
        this.name ='scene2';
     }
 
-    init() {
-        this.createScene();
-        this.setupAnimations();
-    }
+   
 
-    createScene() {
+    setupObjects() {
 
         //Moutain Range
         this.mountain = createMountainRange(20,20,20);

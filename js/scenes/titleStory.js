@@ -21,15 +21,21 @@ import syncAnimation from '/js/assets/scripts/syncAnimation.js';
 import * as materials from '/js/assets/materials.js';
 
 export class titleStory extends Story{
-    constructor(app){
-        super(app);
+    constructor(app, targetElement){
+        super(app, targetElement);
+        //to do remove this stuff and put it in a different function , we dont want to screw with the constructor
         this.spawnTimer =0;
         this.animateUp;
-        this.name = 'titleStory';
-        
+ 
     }
 
-    createScene(){// Create any objects or meshes specific to this scene here
+    init(){
+        super.init();
+        this.setName('title Story');
+    }
+
+
+    setupObjects(){// Create any objects or meshes specific to this scene here
         //animate the camera to scroll
         this.animateCameraY();
        
@@ -51,6 +57,14 @@ export class titleStory extends Story{
             this.landscape.addScript(loopingTile,{speed:2.3,story:this,originTile:true,tileSizeX:23.5*scale});
         });
         
+    }
+    setupLighting(){
+        //specific lighting for this
+        const ambientLight = new THREE.AmbientLight(0xE97451, 1);
+        this.mainScene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8);
+        directionalLight.position.set(1, 1, 1);
+        this.mainScene.add(directionalLight);
     }
 
     setupAnimations(){// Setup any GSAP animations or ScrollTriggers specific to this scene here

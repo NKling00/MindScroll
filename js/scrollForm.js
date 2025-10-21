@@ -12,59 +12,36 @@ import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js';
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 import Stats from 'stats.js';
 
-class ScrollForm {
-    constructor(targetElements,sceneClasses) {
+export class ScrollForm {
+    constructor(targetElements,storyClasses) {
 
         this.mouse = new THREE.Vector2(); // scenes can access this mouse
-        this.raycaster = new THREE.Raycaster();
         this.clock = new THREE.Clock();
        
         this.targetElements=targetElements;
-        this.scenes = [];// need to instantiate each scene
-        // need to instantiate each story from sceneClasses
-        for (var i =0;i<sceneClasses.length;i++){
-            this.scenes.push(new sceneClasses[i](this));
+        this.stories = [];
+
+        //setup methods
+        this.setupMouseMove(); // calculate mouse position
+
+        this.initScenes(storyClasses);
+    }
+
+    initScenes(storyClasses) {
+        //instantiate each scene
+        for (var i =0;i<storyClasses.length;i++){
+            console.log('for loop element:' + this.targetElements[i]);
+            this.stories.push(new storyClasses[i](this,this.targetElements[i]));
         }
-
-        this.init();
     }
 
-    init() {
-        for (var i =0;i<this.scenes.length;i++){
-            this.setupThreeJS();
-        }
+
+    setupMouseMove() {
+         window.addEventListener('mousemove', (event) => {
+            this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
     }
-
-    /**\
-     * @description Set up the core of threejs for each scene
-     * @param {HTMLElement} targetElement - The HTLML element to append the renderer to
-     * @returns {Object} - An object containing the scene, camera, and renderer
-     */
-    setupThreeJS(targetElement){ // we need to do this for each scene
-        //create scene
-        const thisScene = new THREE.Scene();
-        //create camera
-        const thisCamera = new THREE.PerspectiveCamera(75,window.innerWidth / window.innerHeight, 0.1,1000); 
-        thisCamera.position.z = 5;
-        thisScene.add(thisCamera);
-        //create renderer
-        const thisRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        thisRenderer.setSize(window.innerWidth, window.innerHeight);
-        thisRenderer.setPixelRatio(window.devicePixelRatio);
-        //append renderer to target element
-        if (targetElement){
-            targetElement.appendChild(thisRenderer.domElement);
-        }
-        
-
-       const returnObj = {"scene":thisScene,"camera":thisCamera,"renderer":thisRenderer};
-       return returnObj;
-
-    }
-
-    //update Loop for each scene
-    update(){
-        
-    }
+    
     
 }

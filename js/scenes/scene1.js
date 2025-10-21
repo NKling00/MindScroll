@@ -30,7 +30,7 @@ export class Scene1 {
         this.setupAnimations();
     }
 
-    createScene() {
+    setupObjects() {
             
         //Instance BRAIN
         this.brainGameObject = new GameObject(sphereBrain);
