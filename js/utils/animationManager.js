@@ -1,7 +1,6 @@
 export class AnimationManager {
     constructor(app) {
         this.app = app;
-        this.activeAnimations = new Map();
         this.animationTimeline = gsap.timeline();
         
         this.init();

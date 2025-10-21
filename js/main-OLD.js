@@ -38,10 +38,10 @@ class ScrollytellingApp {
         //this.enableStats = true;
         this.usingComposer =false; // Flag to toggle between composer and renderer
 
-        this.init(); 
+        this.init();
     }
 
-    init() { //run all setup functions
+    init() {
         this.setupStats();
         this.setupMouseMove(); // event listener for mouse move
         this.setupThreeJS();
@@ -61,7 +61,82 @@ class ScrollytellingApp {
     }
 
     setupHTMLElementAnimation() {
-    //
+    //nodes setup
+         gsap.to(".nodes-1", {
+            y: -1000,
+            x:-50,
+            scrollTrigger: {
+            trigger: ".nodeContainer",
+            start: "top-=1200 top",
+            end: "bottom top",
+            scrub: true
+            }
+        });
+         gsap.to(".nodes0", {
+            y: -1000,
+            x:0,
+            scrollTrigger: {
+            trigger: ".nodeContainer",
+            start: "top-=800 top",
+            end: "bottom  top",
+            scrub: true
+            }
+        });
+
+        gsap.to(".nodes1", {
+            y: -1000,
+            x:200,
+            scrollTrigger: {
+            trigger: ".nodeContainer",
+            start: "top 80%",
+            end: "bottom top",
+            scrub: true
+            }
+        });
+         gsap.to(".nodes2", {
+            y:-500,
+            x: -200,
+            scrollTrigger: {
+            trigger: ".nodeContainer",
+            start: "top 80%",
+            end: "bottom top",
+            scrub: true
+            }
+        });
+         gsap.to(".nodes3", {
+            y:-500,
+            x: 50,
+            scrollTrigger: {
+            trigger: ".nodeContainer",
+            start: "top 80%",
+            end: "bottom top",
+            scrub: true
+            }
+        });
+        gsap.to("#scrollVideo", {
+            scale:1.1,
+            scrollTrigger: {
+            trigger: ".nodeContainer",
+            start: "top top",
+            end: "bottom top",
+            scrub: true
+            }
+        });
+
+        gsap.to("#scrollVideo",{
+            opacity:0,
+            scrollTrigger:{
+                trigger:".videoScrollContainer",
+                start:"bottom 100%",
+                end:"bottom top",
+                scrub:true,
+                //markers:true
+            }
+        });
+
+
+
+
     }
 
     setupThreeJS() {
@@ -69,9 +144,14 @@ class ScrollytellingApp {
         this.scene = new THREE.Scene();
         this.scene.fog = new THREE.Fog(0xECECEB, 2, 40);
         this.scene.background = new THREE.Color(0xECECEB);
-
         // Camera setup
-        this.camera = new THREE.PerspectiveCamera(75,window.innerWidth / window.innerHeight, 0.1,1000);
+
+        this.camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
         this.camera.position.z = 5;
 
         // Renderer setup
@@ -85,18 +165,21 @@ class ScrollytellingApp {
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = .6;
         this.renderer.localClippingEnabled = true;
-
-        // Post-processing setup as an option
+        // Post-processing setup
         this.composer = new EffectComposer(this.renderer);
-        this.composer.addPass(new RenderPass(this.scene, this.camera));
 
-        this.bokehPass = new BokehPass(this.scene, this.camera, {
+        
+            this.composer.addPass(new RenderPass(this.scene, this.camera));
+
+            this.bokehPass = new BokehPass(this.scene, this.camera, {
             focus: 1.7,
             aperture: 0.000669,
             maxblur: 0.009,
+
             width: window.innerWidth,
             height: window.innerHeight
-        });
+            });
+        
         this.composer.addPass(this.bokehPass);
 
         // Lighting
@@ -117,7 +200,7 @@ class ScrollytellingApp {
     // gui.add(this.bokehPass.uniforms.maxblur, 'value', 0.0, 0.1).name('Max Blur');
 
     //animate aperture racking into focus on start
-    //gsap.from(this.bokehPass.uniforms.aperture, {value: 0.01,duration: 2,delay: 1});
+    gsap.from(this.bokehPass.uniforms.aperture, {value: 0.01,duration: 2,delay: 1});
     
     }
 
@@ -126,24 +209,23 @@ class ScrollytellingApp {
     }
 
     setupAnimationManager() {
-        // this could be simplified, probably doesnt need to be a class , it just offers simple wrappers for creating gsap animations
         this.animationManager = new AnimationManager(this);
     }
 
-    loadStories() { //run setups on all the story scene files
-        //1
+    loadStories() {
+        // Load individual scene modules
         this.scenes.title = new titleStory(this);
-        this.storyCameras[0]= this.scenes.title;//add camera into camera system 
-  
-        //2
+        // this.storyCameras.push(this.scenes.title.camera); //add camera into camera system
+        this.storyCameras[0]= this.scenes.title;   
+       
+        // this.scenes.hero = new HeroScene(this);
         this.scenes.scene1 = new Scene2(this);
         this.storyCameras[1]= this.scenes.title;  
-
-        //3
-        //---
-
-        //set starting camera
+        //this.storyCameras.push(this.scenes.scene1.camera);
+            //this.scenes.scene2 = new Scene2(this);
+      
         this.currentCamera = this.storyCameras[0];
+        console.log('camera:'+ this.currentCamera);
     }
 
     switchScene(sceneName) {
