@@ -14,19 +14,20 @@ import Stats from 'stats.js';
 export class Story {
     constructor(app,targetElement) {
         this.app = app; //parent app, 
-        this.clock = app.clock; //use the app clock
+        this.clock = new THREE.Clock(); //each story needs its own clock for accurate deltaTime
         this.objects = []; //stores all object3D's in the scene to be referenced later
         this.gameObjects = []; //stores all gameObjects to be called in the update loop
         this.isVisible = true;
         this.debugIndex = -1; //used in my janky debug mode, will eventually remove
         this.deltaTime =0;
+        this.helpers={};
 
         this.sceneLoaded = true; //TO DO: Wait for all objects to load and then report back
 
         this.mainScene = new THREE.Scene();
         this.renderer = null;
-        this.targetElement= targetElement;
-        console.log( 'target Element is ' + this.targetElement);
+        this.renderTargetElement= targetElement;
+        console.log( 'target Element is ' + this.renderTargetElement);
         this.enableStats = false;
         this.stats = null;
         this.name = null;
@@ -36,15 +37,17 @@ export class Story {
         this.setupDebugKeyboardControls();
     }
 
+    
+
     init() {
         //THIS IS THE MAIN ORDER OF SET UP vvvvv
         this.setupCamera(); //set up a basic camera, can be overwritten if you want to use a different camera
         this.setupLighting(); //set up basic lighting
-        this.setupRenderer(this.targetElement); //basic render > assigns renderer to target HTML element
+        this.setupRenderer(this.renderTargetElement); //basic render > assigns renderer to target HTML element
         this.setupObjects(); //instance objects here and add to scene using this.addToStory(object)
         this.setupAnimations(); //assign GSAP Animations
         this.setupStats(); //set up stats if enabled
-
+        //this.setupHelpers(); //set up helpers
         // Now that everything is set up, start the rendering loop and begin!!
         this.render(); //start rendering loop, Starts the game loop
     }
@@ -57,10 +60,6 @@ export class Story {
         document.body.appendChild(this.stats.dom);
     }
 
-    setupCamera(){ //set up a basic camera, can be overwritten if you want to use a different camera
-        this.camera = new THREE.PerspectiveCamera(75,window.innerWidth / window.innerHeight, 0.1,1000);
-        this.camera.position.z = 5;
-    }
     setupLighting(){
         //basic lighting, might need to adjust this basic setup later
         //basic threejs lighting setup here:
@@ -72,8 +71,10 @@ export class Story {
     }
     setupRenderer(htmlElement){
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setSize(htmlElement.clientWidth, htmlElement.clientHeight);
+        // this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.localClippingEnabled = true; //enable clipping planes for phaseClipping script
         if (htmlElement){
             htmlElement.appendChild(this.renderer.domElement); //add it to the dom
         }
@@ -83,8 +84,17 @@ export class Story {
     }
 
     setupCamera(){
-        this.camera = new THREE.PerspectiveCamera(75,window.innerWidth / window.innerHeight, 0.1,1000);
+        this.camera = new THREE.PerspectiveCamera(75,this.renderTargetElement.clientWidth / this.renderTargetElement.clientHeight, 0.1,1000);
         this.camera.position.z = 5;
+    }
+   
+    setupHelpers(){
+        this.helpers.axesHelper = new THREE.AxesHelper(8); // 5 is the size, X:Red, Y:Green, Z:Blue
+        this.addToStory(this.helpers.axesHelper);
+        this.helpers.sceneGridHelper = new THREE.GridHelper(10, 10); // size and divisions
+        this.helpers.sceneGridHelper.position.set(0,0,-.01);
+        this.helpers.sceneGridHelper.rotation.x = Math.PI/2;
+        this.addToStory(this.helpers.sceneGridHelper);
     }
    
 
@@ -151,7 +161,7 @@ export class Story {
   */
     update() {
         if (!this.isVisible) return;
-        this.deltaTime = this.clock.getDelta(); //get delta time for update
+        this.deltaTime = this.clock.getDelta(); //get delta time for update using this story's own clock
         for (const obj of this.gameObjects) { //update all gameobjects by sending deltatime
             obj.update(this.deltaTime); 
         }
@@ -164,9 +174,9 @@ export class Story {
     
 
     onWindowResize() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.aspect = this.renderTargetElement.clientWidth / this.renderTargetElement.clientHeight;
         this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setSize(this.renderTargetElement.clientWidth, this.renderTargetElement.clientHeight);
     }
 
    
@@ -213,5 +223,33 @@ export class Story {
     }
 
 
+    /**
+     * @description Converts a color string (CSS color name, hex, rgb, etc.) to a hexadecimal color code
+     * @param {string} colorString - Color string (e.g., 'red', '#ff0000', 'rgb(255,0,0)', 'hsl(0,100%,50%)')
+     * @returns {number} Hexadecimal color code (e.g., 0xff0000)
+     */
+    static colorStringToHex(colorString) {
+        // Create a temporary element to use browser's color parsing
+        const tempElement = document.createElement('div');
+        tempElement.style.color = colorString;
+        document.body.appendChild(tempElement);
+        
+        // Get computed color (always returns rgb/rgba format)
+        const computedColor = window.getComputedStyle(tempElement).color;
+        document.body.removeChild(tempElement);
+        
+        // Parse rgb/rgba format
+        const rgbMatch = computedColor.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+        if (rgbMatch) {
+            const r = parseInt(rgbMatch[1]);
+            const g = parseInt(rgbMatch[2]);
+            const b = parseInt(rgbMatch[3]);
+            return (r << 16) | (g << 8) | b;
+        }
+        
+        // If parsing fails, return white as default
+        console.warn(`Failed to parse color string: ${colorString}`);
+        return 0xffffff;
+    }
 
 }

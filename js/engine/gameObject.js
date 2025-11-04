@@ -63,11 +63,16 @@ export class GameObject {
         }
         if (this.mixer && !this.animateOnScroll) {
             //console.log('animating with mixer');
+            
             this.mixer.update(deltaTime);  
+        }
+        if (this.animateOnScroll){
+           // this.mixer.setTime(5);
+            //console.log('currently playing frame',this.mixer.time);
         }
         
     }
-
+    //used for adding assigned object3D to a THREE.js scene
     addToScene(scene) {
         scene.add(this.object3D);
     }
@@ -157,7 +162,14 @@ export class GameObject {
         
      }
      
-     SetScrollAnimate(animName,triggerElem){
+
+     /**
+      * @description links a 3dModel animation to the scroll position
+      * @param {string} animName 
+      * @param {selector String} triggerElem 
+      */
+     //Set up scroll animation
+     SetScrollAnimate(animName='animation_0',triggerElem){
         this.animateOnScroll = true; //disable update from firing for animation
         const action=this.animationActions[animName];
         const animationDuration = action.getClip().duration;
@@ -171,13 +183,73 @@ export class GameObject {
             start: "top top",
             end: "bottom center",
             scrub: true,
-            markers:false,
+            markers:true,
+            toggleActions: "play none none none",
             onUpdate: self => {
-            this.mixer.setTime(self.progress * animationDuration);
+            console.log('moving');
+            const clampedTime = Math.min(self.progress * animationDuration, animationDuration);
+            this.mixer.setTime(clampedTime);
+            },
+            onLeave: () => {
+                this.mixer.setTime(animationDuration-.01); // Keep at final frame //some strange bug, where maybe it was rounding but it was going just a little over the last frame and grabbing frame 1 when it looped around
+            },
+            onEnterBack: () => {
+                // Resume scrubbing when scrolling back
             }
         }
         });
     
+     }
+
+     /**
+      * @description Triggers animation when element enters viewport, completes animation by halfway point
+      * @param {string} animName - Name of the animation to play
+      * @param {string} triggerElem - CSS selector for the trigger element
+      * @param {boolean} markers - Show ScrollTrigger markers for debugging (default: false)
+      */
+     PlayAnimationOnEnter(animName='animation_0', triggerElem, markers=false,animSpeedMult=1,callback=null){
+        this.animateOnScroll = true; //disable update from firing for animation
+        const action = this.animationActions[animName];
+        if (!action) {
+            console.warn(`Animation ${animName} not found!`);
+            return;
+        }
+        
+        const animationDuration = action.getClip().duration;
+        action.play();
+        this.mixer.setTime(0); //set initial time to zero
+        
+        let callbackFired = false; // Prevent multiple callback calls
+        
+        gsap.to({ time: 0 }, {
+            time: animationDuration,
+            ease: "none",
+            scrollTrigger: {
+                trigger: triggerElem,
+                start: "top bottom", // starts when top of element hits bottom of viewport (enters view)
+                end: "bottom center", // ends when center of element hits center of viewport (halfway through)
+                scrub: true,
+                markers: markers,
+                toggleActions: "play none none none",
+                onUpdate: self => {
+                    const progress = self.progress * animationDuration*animSpeedMult;
+                    const clampedTime = Math.min(progress, animationDuration);
+                    this.mixer.setTime(clampedTime);
+                    
+                    // Fire callback when animation completes (progress >= 99%)
+                    if(callback && !callbackFired && self.progress >= 0.99){
+                        callbackFired = true;
+                        callback();
+                    }
+                },
+                onLeave: () => {
+                    this.mixer.setTime(animationDuration-.01); // Keep at final frame
+                },
+                onEnterBack: () => {
+                    callbackFired = false; // Reset callback flag when scrolling back
+                }
+            }
+        });
      }
 
     dispose() {
@@ -217,4 +289,7 @@ export class GameObject {
         material.dispose();
     }
 
+    addAxesHelper(size){
+        this.object3D.add(new THREE.AxesHelper(size));
+    }
 }

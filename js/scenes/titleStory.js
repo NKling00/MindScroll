@@ -32,6 +32,7 @@ export class titleStory extends Story{
     init(){
         super.init();
         this.setName('title Story');
+       
     }
 
 
@@ -57,6 +58,8 @@ export class titleStory extends Story{
             this.landscape.addScript(loopingTile,{speed:2.3,story:this,originTile:true,tileSizeX:23.5*scale});
         });
         
+       //this.addExampleLaptop();
+
     }
     setupLighting(){
         //specific lighting for this
@@ -106,7 +109,7 @@ export class titleStory extends Story{
             start: " top top ", //when the top +150 hits the top of the element
             endTrigger: parentContainer[0],
             end: "bottom-=50% bottom ", // ends when bottom of element hit bottom of parent element
-            markers:true,
+            markers:false,
             pin: true,
             pinSpacing: true, // adds space after the pinned element           
              
@@ -148,6 +151,46 @@ export class titleStory extends Story{
             }
         });
     }
+
+    addExampleLaptop(){
+         this.laptop = new GameObject();
+        this.laptop.loadModelToStory('models/laptop01.glb',this,
+            ()=>{
+                console.log('laptop loaded');
+                this.laptop.setPosition(2,-3.5,1);
+                // this.laptop.setPosition(2,-3.5,1);
+                this.laptop.setScale(.8,.8,.8);
+                this.laptop.disableFogMaterials();
+                
+                this.laptop.SetScrollAnimate('animation_0','.hero-section');
+                this.laptop.addScript(scripts.HoverScript,{amplitude:.2});
+                //this.laptop.playAnimationOnce('animation_0',()=>{console.log('callback!')});
+                //this.camera.add(this.laptop.object3D);
+
+                 this.laptop.addScript(phaseClipping,{ speed: .30,direction:'down',loop:false });
+                const clipper = this.laptop.getComponent('phaseClipping');
+                if(clipper){
+                    
+                  setTimeout(()=>{clipper.startClipping();},3000);
+                }
+
+                //Create a wire copy, add a phase clip to it
+                //to do make a script that creates a wire copy and adds a phase clip to it
+                 const wireComponent = this.laptop.addScript(wireCopy,{scale:1.01, story:this});
+                 const wireObj =  wireComponent.wireGameObj;
+                 console.log(wireObj);
+                 wireObj.addScript(phaseClipping,{speed:.2,direction:'down',loop:true,downPauseTime:4000});
+                const clipper2 = wireObj.getComponent('phaseClipping');
+                if(clipper2){
+                    clipper2.startClipping();
+                }
+                wireObj.addScript(syncAnimation,{targetGameObject:this.laptop});
+                
+            });
+        
+        this.laptop.addScript(scripts.lookAtMouse,{app:this.app});
+    }
+
 
     animateCameraY(){
         //Animate camera to scroll
