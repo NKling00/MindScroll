@@ -38,6 +38,8 @@ export class titleStory extends Story{
 
     setupObjects(){// Create any objects or meshes specific to this scene here
         //animate the camera to scroll
+        this.mainScene.fog = new THREE.Fog(0xECECEB, 2, 40);
+        this.mainScene.background = new THREE.Color(0xECECEB);
         this.animateCameraY();
        
         //landscape Mesh
