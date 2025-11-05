@@ -228,7 +228,7 @@ export class Story {
      * @param {string} colorString - Color string (e.g., 'red', '#ff0000', 'rgb(255,0,0)', 'hsl(0,100%,50%)')
      * @returns {number} Hexadecimal color code (e.g., 0xff0000)
      */
-    static colorStringToHex(colorString) {
+    colorStringToHex(colorString) {
         // Create a temporary element to use browser's color parsing
         const tempElement = document.createElement('div');
         tempElement.style.color = colorString;

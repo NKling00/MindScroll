@@ -11,6 +11,7 @@ import syncAnimation from '/js/assets/scripts/syncAnimation.js';
 import {rotate} from '/js/assets/scripts/rotate.js';
 import {scalePop} from '/js/assets/scripts/scalePop.js';
 import {moveTo} from '/js/assets/scripts/moveTo.js';
+import {spawnRing} from '/js/assets/scripts/spawnRing.js';
 
 //Imports for 3d Assets
 
@@ -96,38 +97,22 @@ export class laptopPopScene extends Story{
                 wireObj.addScript(syncAnimation,{targetGameObject:this.musicNote});
 
                 console.log(this.musicNote.object3D);
-                
+                //add pop script
+                this.musicNote.popScript = this.musicNote.addScript(scalePop,{scalePercent:1.2,time:.3});
+                this.musicNote.popScript.pop();
+
+                //add grenlight and spawn ring
                 this.greenlight = new THREE.PointLight(0xAAFF00, 4);
                 this.greenlight.position.set(1,.5,.5);
                 this.greenlight.lookAt(this.musicNote.object3D.position);
                 this.musicNote.object3D.add(this.greenlight);
+                let thisColor = this.colorStringToHex('#c8ff5a64');
+                this.musicNote.addScript(spawnRing,{scale:2.5,scaleY:2,color:thisColor,segments:16});
+                this.musicNote.getComponent('spawnRing').spawnRing();
                 
         };
         
         this.musicNote.loadModelToStory('models/musicNote1a.glb',this,this.noteLoad);
-
-        //create a green light pointing up at it beneath it
-        
-        //add light point helper
-        //this.greenlight.add(new THREE.PointLightHelper(this.greenlight, 1));
-        // this.underLight = new GameObject(this.greenlight);
-        // this.addToStory(this.underLight);
-
-
-        
-        
-
-        // const coneGeometry = new THREE.ConeGeometry(5, 20, 32, 1, true);
-        // const coneMaterial = new THREE.MeshBasicMaterial({
-        // color: 0xffffff,
-        // transparent: true,
-        // opacity: 0.2,
-        // side: THREE.DoubleSide,
-        // });
-        // const lightCone = new THREE.Mesh(coneGeometry, coneMaterial);
-        // lightCone.position.copy(this.greenlight.position);
-        // lightCone.lookAt(new THREE.Vector3(0, 0, 0));
-        // this.addToStory(lightCone);
 
     }
 

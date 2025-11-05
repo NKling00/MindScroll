@@ -121,6 +121,45 @@ p {
         margin: 1rem;
         padding: 1.5rem;
     }
+    
+    .moduleTitle {
+        padding-left: 4vw;
+        min-height: 100vh;
+    }
+    
+    #titleQ {
+        font-size: 25rem;
+        left: 50vw;
+    }
+    
+    #lottieBrain {
+        max-width: 30vw !important;
+        padding-left: 20px !important;
+    }
+    
+    h1 {
+        font-size: 12vw;
+    }
+    
+    .subH1 {
+        font-size: 8vw;
+    }
+    
+    #chapter1Container,
+    #chapter2Container {
+        width: 85vw !important;
+        left: 5vw !important;
+        right: 5vw !important;
+    }
+    
+    .sticky-right {
+        width: 90%;
+        padding: 1rem;
+    }
+    
+    .nodeLayer {
+        display: none;
+    }
 }
 
 
