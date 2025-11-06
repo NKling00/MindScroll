@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {GameObject} from '/js/engine/gameObject.js';
 export class spawnRing {
   static parameters = { //these parameters do nothing on their own, but gameObject class reads them to use as defaults to pass the constructor
     rotspeed:{ type: 'number', default: 1.0 },
@@ -30,6 +31,7 @@ export class spawnRing {
   }
 
   spawnRing(){ //return the formRing gameobject
+
     this.form = new THREE.Mesh(
       //create a wireframe material in bright green
       new THREE.WireframeGeometry(new THREE.ConeGeometry(1, 1, 16, 1,false,0,Math.PI*2)),
@@ -46,6 +48,8 @@ export class spawnRing {
     this.form.scale.set(this.scale,this.scaleY,this.scale);
     this.form.rotation.set(Math.PI,0,0); //set 180 upside down
     this.form.position.set(0,-2,0);
+    this.formGameObject = new GameObject(this.form);
     this.gameObject.object3D.add(this.form);
+    return this.formGameObject;
   }
 }

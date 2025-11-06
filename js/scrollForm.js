@@ -63,7 +63,7 @@ export class ScrollForm {
         this.chapter1Header = document.querySelector('#chapter1Header');
         this.chapter1Content = document.querySelector('#chapter1Content');
         
-        ScrollTrigger.create({ //laptop pop working
+        ScrollTrigger.create({ //setup stick for chapter 1
             trigger:'#spacer1',
             start:'top top',
             end:'bottom bottom',
@@ -71,7 +71,7 @@ export class ScrollForm {
             scrub:true,
             markers:false
         });
-        ScrollTrigger.create({ //laptop pop working
+        ScrollTrigger.create({ // setup stick for Chapter 2
             trigger:'#spacer2',
             start:'top top',
             end:'bottom bottom',
@@ -80,7 +80,7 @@ export class ScrollForm {
             markers:false
         })
 
-        // Detect when leftmove1 enters the screen
+        // Detect when leftmove1 enters the screen , this is to shift the laptop left and right
         ScrollTrigger.create({
             trigger: '#leftmove1',
             start: 'top top', // When top of element hits top of viewport

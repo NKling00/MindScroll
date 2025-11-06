@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI & Cybersecurity - The Future of Digital Defense</title>
+    
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,7 +13,7 @@
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 </head>
 <body>
-
+    <video id="sphereVideo" autoplay loop muted playsinline style="display:none" src="media/spheresLoop.webm"></video>
 
     <div id="title_THREEBG" style="width:100vw;height:100vh;position:fixed;top:0;left:0;z-index:-10;"></div>
     
@@ -30,13 +31,16 @@
            
     </section>
 
-    <div id="laptopPopContainer" style ="position:relative;background-color:rgba(183, 224, 223, 0);height:auto;width:100vw;">
+    <div id="laptopPopContainer" class="blurBackground" style ="position:relative;background-color:rgba(183, 224, 223, 0);height:auto;width:100vw;">
         
        <div class="spacer" id="spacer1" style = "width:100vw;height:4200px;position:relative;background-color:rgba(247, 215, 34, 0);">
-            <div id ="chapter1Container" style="padding:1rem;top:50px;left:50px;position:absolute;width:35vw;">
-                <div id="chapter1Header" style="opacity:1;"><h2>A different kind of intelligence?</h2></div>
-                <div id="chapter1Content" style="opacity:1;">
-                    <p>Generative AI refers to artificial intelligence systems that can create new content -- like text, images,audio,or even code -- based on patterns they've learned from vast amounts of data.</p>
+            <div id ="chapter1Container" style="position:absolute;width:35vw;">
+                <div class="numberMarker" style="top:.5vw;left:4vw;position:absolute;width:35vw;">01</div>
+                <div  class="floatingInfo" style="top:8vw;left:4vw;position:absolute;width:35vw;">
+                    <div id="chapter1Header" style="opacity:1;"><h2>A different kind of intelligence?</h2></div>
+                    <div id="chapter1Content" style="opacity:1;">
+                        <p>Generative AI refers to artificial intelligence systems that can create new content -- like text, images,audio,or even code -- based on patterns they've learned from vast amounts of data.</p>
+                    </div>
                 </div>
             </div>
         </div>

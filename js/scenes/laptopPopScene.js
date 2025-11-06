@@ -12,6 +12,9 @@ import {rotate} from '/js/assets/scripts/rotate.js';
 import {scalePop} from '/js/assets/scripts/scalePop.js';
 import {moveTo} from '/js/assets/scripts/moveTo.js';
 import {spawnRing} from '/js/assets/scripts/spawnRing.js';
+import {scaleTransition} from '/js/assets/scripts/scaleTransition.js';
+import {createVideoTexture} from '/js/utils/videoTexture.js';
+import {cyberBrain,sphereBrain} from '/js/assets/Objects.js';
 
 //Imports for 3d Assets
 
@@ -19,23 +22,33 @@ import {spawnRing} from '/js/assets/scripts/spawnRing.js';
 
 export class laptopPopScene extends Story{
     setupObjects(){
-        //import laptop object
-        //
+
+        this.videoMaterial = createVideoTexture(document.getElementById('sphereVideo'));
         this.musicNoteSpawned =false;
         this.laptop = new GameObject(); 
+
+
         this.laptopLoad = ()=>{
-            this.laptop.currentScreenPosition = 0;
+
+            //find material in this model and assign it the video material
+            this.laptop.object3D.traverse((child)=>{
+                if (child.isMesh && child.name =='Screen' )child.material = this.videoMaterial;
+            });
+            
+            this.laptop.currentScreenPosition = 0; //used to track left or right screen position, starts on  the right
             this.laptop.movePositions = [{x:1,y:-.5,z:0},{x:-1.2,y:.5,z:0}]; //two sides of the screen
             this.laptop.rotationPositions = [{x:Math.PI/9,y:Math.PI/-4,z:0},{x:Math.PI/9,y:Math.PI/4,z:0}];
             
             this.laptop.setPosition(this.laptop.movePositions[0].x,this.laptop.movePositions[0].y,this.laptop.movePositions[0].z);
             this.laptop.setScale(.8,.8,.8); //initial positioning
-            this.laptop.setRotation(this.laptop.rotationPositions[0].x,this.laptop.rotationPositions[0].y,this.laptop.rotationPositions[0].z);
-
+            this.laptop.setRotation(this.laptop.rotationPositions[0].x,this.laptop.rotationPositions[0].y,this.laptop.rotationPositions[0].z);//initial rotation
+    
+            const animNames = this.laptop.getAnimationNames();
+            console.log('Available animations:', animNames);
             // Play animation when content section enters view, completes by halfway point
-            this.laptop.PlayAnimationOnEnter('animation_0','#laptopPopTHREE', false,.6,()=>{ 
+            this.laptop.PlayAnimationOnEnter(animNames[0],'#laptopPopTHREE', false,.6,()=>{ 
                 if (!this.musicNoteSpawned){
-                    this.spawnMusicNote();
+                   setTimeout(()=> this.spawnMusicNote(),200);
                     this.musicNoteSpawned = true;
                     this.laptop.popScript.pop();
                 }
@@ -52,12 +65,32 @@ export class laptopPopScene extends Story{
                 this.laptop.moveScript.move({targetPosition:{x:this.laptop.movePositions[index].x,y:this.laptop.movePositions[index].y,z:this.laptop.movePositions[index].z},targetRotation:{x:this.laptop.rotationPositions[index].x,y:this.laptop.rotationPositions[index].y,z:this.laptop.rotationPositions[index].z}});
             };
             
+            //go through the laptops materials and increase specular on all materials
+            this.laptop.object3D.traverse((child)=>{
+                if (child.isMesh){
+                    console.log(child.material);
+                    child.material.roughness = .6;    
+                }
+            });
+            
             console.log('loaded');
         };
         this.laptop.loadModelToStory('models/laptop01.glb',this,this.laptopLoad);
 
-       
-      
+        let lapLight = new THREE.PointLight(this.colorStringToHex('#fca0ffff'),12);
+        lapLight.position.set(2.4,0,4);
+        this.mainScene.add(lapLight);
+
+        let lapLight2 = new THREE.PointLight(this.colorStringToHex('#08129bff'),12);
+        lapLight2.position.set(-2,0,2);
+        this.mainScene.add(lapLight2);
+            
+        // add helper object to light
+        // const helper = new THREE.PointLightHelper(lapLight, 2);
+        // this.mainScene.add(helper);
+        
+        
+        //lapLight.position.copy(this.laptop.object3D.position);      
         
 
 
@@ -67,8 +100,40 @@ export class laptopPopScene extends Story{
         
     }
 
+
+    spawnCyberBrain(){
+        this.cyberBrain = new GameObject(sphereBrain);
+        this.addToStory(this.cyberBrain);
+
+        console.log(this.cyberBrain.object3D);
+        console.log('here');    
+        this.cyberBrain.setPosition(.5,1,.5);
+        this.cyberBrain.setScale(.5,.6,-.7); //initial positioning
+        this.cyberBrain.setScale(.75,.75,-1); //initial positioning
+
+        
+        const wireComponent = this.cyberBrain.addScript(wireCopy,{scale:1.08, story:this,opacity:.2,color:this.colorStringToHex('#fd3939d7')});
+        const wireObj =  wireComponent.wireGameObj;
+        
+         wireObj.addScript(phaseClipping,{speed:.6,direction:'down',loop:true,downPauseTime:1000});
+        const clipper2 = wireObj.getComponent('phaseClipping');
+        if(clipper2){
+            clipper2.startClipping();
+        }
+       
+        this.cyberBrain.popScript=this.cyberBrain.addScript(scalePop,{scalePercent:1.2,time:.3});   
+        this.cyberBrain.addScript(rotate,{speed:.5,axis:'y'});
+        this.cyberBrain.addScript(scripts.HoverScript,{amplitude:.6});
+
+        this.cyberBrain.popScript.pop();
+        
+        
+    }
+
     spawnMusicNote(){
-        this.musicNote = new GameObject();
+         this.spawnCyberBrain();
+        
+         this.musicNote = new GameObject();
    
         this.noteLoad = ()=>{
             this.musicNote.setScale(.3,.3,.3); //initial positioning
@@ -106,13 +171,15 @@ export class laptopPopScene extends Story{
                 this.greenlight.position.set(1,.5,.5);
                 this.greenlight.lookAt(this.musicNote.object3D.position);
                 this.musicNote.object3D.add(this.greenlight);
-                let thisColor = this.colorStringToHex('#c8ff5a64');
-                this.musicNote.addScript(spawnRing,{scale:2.5,scaleY:2,color:thisColor,segments:16});
-                this.musicNote.getComponent('spawnRing').spawnRing();
+
+                //spawn ring
+                this.musicNote.addScript(spawnRing,{scale:5.5,scaleY:2,color:this.colorStringToHex('#c8ff5a64'),segments:16});
+                this.ring = this.musicNote.getComponent('spawnRing').spawnRing();
+               
                 
         };
         
-        this.musicNote.loadModelToStory('models/musicNote1a.glb',this,this.noteLoad);
+        //this.musicNote.loadModelToStory('models/musicNote1a.glb',this,this.noteLoad);
 
     }
 
@@ -127,6 +194,7 @@ export class laptopPopScene extends Story{
             // this.laptop.moveScript.move();
             if (this.laptop.currentScreenPosition == 0){
                 this.laptop.moveToPos(1);
+                this.musicNote.hide();
             }
         }
         
@@ -142,6 +210,7 @@ export class laptopPopScene extends Story{
         if (this.laptop && this.laptop.moveToPos) {
             if (this.laptop.currentScreenPosition == 1){
                 this.laptop.moveToPos(0);
+                this.musicNote.show();
             }
         }
         

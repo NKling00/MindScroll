@@ -56,6 +56,8 @@ export class GameObject {
     }
 
     update(deltaTime) {
+        if (!this.enabled) return; // Skip update if disabled
+        
         for (const script of this.scripts) {
             if (typeof script.update === 'function') {
                 script.update(deltaTime);
@@ -71,6 +73,22 @@ export class GameObject {
             //console.log('currently playing frame',this.mixer.time);
         }
         
+    }
+
+    /**
+     * Hides the object3D and stops update calls
+     */
+    hide() {
+        this.object3D.visible = false;
+        this.enabled = false;
+    }
+
+    /**
+     * Shows the object3D and resumes update calls
+     */
+    show() {
+        this.object3D.visible = true;
+        this.enabled = true;
     }
     //used for adding assigned object3D to a THREE.js scene
     addToScene(scene) {
@@ -101,7 +119,7 @@ export class GameObject {
         setToColor(this.object3D,0x000000);
     }
 
-    loadModelToStory(url,story, onLoad) {
+    loadModelToStory(url,parent, onLoad) {
         const loader = new GLTFLoader();
         loader.load(url, (gltf) => {
             this.object3D = (gltf.scene);
@@ -117,7 +135,14 @@ export class GameObject {
                 });
 
             }
-            story.addToStory(this);
+            // Check if parent has addToStory method (is a Story instance)
+            if (parent.addToStory && typeof parent.addToStory === 'function'){
+                parent.addToStory(this);
+            }
+            // Check if parent is a THREE.Object3D
+            else if (parent instanceof THREE.Object3D){ 
+                parent.add(this.object3D);
+            }
             if (onLoad) onLoad();
         });
     }
@@ -152,6 +177,14 @@ export class GameObject {
         if (!this.animationActions[animName]) {
             console.warn(`Animation ${animName} not found!`);
         }
+    }
+
+    /**
+     * Returns an array of all available animation names
+     * @returns {string[]} Array of animation names
+     */
+    getAnimationNames() {
+        return Object.keys(this.animationActions);
     }
 
     disableFogMaterials(){
@@ -289,7 +322,7 @@ export class GameObject {
         material.dispose();
     }
 
-    addAxesHelper(size){
+    addAxesHelper(size=10){
         this.object3D.add(new THREE.AxesHelper(size));
     }
 }

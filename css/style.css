@@ -69,7 +69,7 @@ section {
     max-width: 1200px;
     padding: 2rem;
     
-    border-radius: 1rem;
+    /* border-radius: 1rem; */
     backdrop-filter: blur(30px);
     margin: 2rem;
     z-index: 2;
@@ -102,7 +102,15 @@ h1 {
 
 h2 {
     font-size: clamp(1.5rem, 4vw, 3rem);
-    margin-bottom: 1rem;
+    margin-top:0;
+    /* margin-bottom: 1rem; */
+    font-size: 3vw;
+    /* font-size: clamp(7vw, 8vw, 10vw); */
+    margin-bottom: 2rem;
+    font-family: "Barlow", sans-serif;
+    line-height: 1.1;
+
+
 }
 
 p {
@@ -312,4 +320,27 @@ video {
       font-size: 1.5rem;
       text-align: center;
       margin: 2rem auto;
+    }
+
+
+    .floatingInfo{
+    border-top: 8px solid #ff206a; /* Solid blue top border */
+
+    padding:1.5rem;
+   
+    box-shadow: 0 4px 6px rgba(43, 36, 54, 0.575);
+    background-color:rgb(255, 255, 255);
+    
+    }
+
+    .numberMarker{
+     color:#ff206a;
+     font-size: 5vw;
+     font-weight: 800;
+     font-family: "Bellota Text", sans-serif;   
+    }
+
+    .blurBackground{
+        /* background-color: rgba(255, 255, 255, 0.0); */
+        /* backdrop-filter: blur(2px);   */
     }

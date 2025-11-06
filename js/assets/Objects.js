@@ -148,10 +148,10 @@ export const cyberBrain = ()=>{
         // brainMat.normalScale.set(1.6,1.6);
         
         const brainMesh = new THREE.Mesh(brainGeo,cyberBrainMat);
-        brainMesh.position.x = 2.8;
-        brainMesh.scale.x = 1.1;
-        brainMesh.scale.z = .9;
-        brainMesh.rotation.z = -.3;
+        // brainMesh.position.x = 2.8;
+        // brainMesh.scale.x = 1.1;
+        // brainMesh.scale.z = .9;
+        // brainMesh.rotation.z = -.3;
 
         return brainMesh;
 }

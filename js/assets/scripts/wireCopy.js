@@ -7,6 +7,7 @@ export default class wireCopy {
     color:{ type: 'color', default:0x1cf151 },
     scale:{ type: 'number', default: .95 },
     story:{ type: 'object', default: null },
+    opacity:{ type: 'number', default: .8 },
   };
 
   constructor(gameObject, params) {
@@ -17,6 +18,8 @@ export default class wireCopy {
     this.story = params.story;
     this.wireObj = null;
     this.wireGameObj = null;
+    this.opacity = params.opacity;
+
   }
 
   update(deltaTime) {
@@ -28,12 +31,20 @@ export default class wireCopy {
     const wireframeMaterial = new THREE.MeshBasicMaterial({
       color:this.color,
       wireframe:true,
+      transparent:true,
+      opacity:this.opacity,
       side: THREE.FrontSide
     })
     const scale = this.scale;
     this.wireObj = this.gameObject.object3D.clone(); 
     this.wireObj.scale.set(scale,scale,scale);
     //discard wireObj materials 
+    if (this.wireObj.material){
+      this.wireObj.material.dispose();
+      this.wireObj.material = null;
+      this.wireObj.material = wireframeMaterial;
+    }
+
     this.wireObj.traverse((child)=>{ //go two layers deep to delete materials
       if(child.material){
         child.material.dispose();

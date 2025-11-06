@@ -174,6 +174,7 @@ export class Story {
     
 
     onWindowResize() {
+        console.log('window resized');
         this.camera.aspect = this.renderTargetElement.clientWidth / this.renderTargetElement.clientHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(this.renderTargetElement.clientWidth, this.renderTargetElement.clientHeight);
