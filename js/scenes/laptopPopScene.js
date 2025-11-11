@@ -99,22 +99,42 @@ export class laptopPopScene extends Story{
         
         
     }
-
+    //spawn all the objects for each section, [[brain],[image1,image2,image3],[musicNote1,musicNote2,]]
+    //hide all objects , give laptop a script cyclePop, should hold a sectionIndex and objectIndex. the timer will hide the last object, and then show and call pop on the next object.
+    //need a script that takes a list of gameobjects that are already spawned. 
 
     spawnCyberBrain(){
         this.cyberBrain = new GameObject(sphereBrain);
-        this.addToStory(this.cyberBrain);
-
-        console.log(this.cyberBrain.object3D);
-        console.log('here');    
+        this.addToStory(this.cyberBrain); 
         this.cyberBrain.setPosition(.5,1,.5);
-        this.cyberBrain.setScale(.5,.6,-.7); //initial positioning
-        this.cyberBrain.setScale(.75,.75,-1); //initial positioning
+       // this.cyberBrain.setScale(.5,.6,-.7); //initial positioning
+
+        this.cyberBrain.setScale(.9,.9,.95); //initial positioning
+        this.cyberBrain.setRotation(Math.PI/9,Math.PI/4,Math.PI/9);
+
+        const lowPolyBrain = new THREE.IcosahedronGeometry(1,2);
+         const wireframeMaterial = new THREE.MeshBasicMaterial({
+              color:this.colorStringToHex('#fd3939d7'),
+              wireframe:true,
+              transparent:true,
+              opacity:.8,
+              side: THREE.FrontSide
+            });
+        
+        const lowPolyBrainObj = new GameObject( new THREE.Mesh(lowPolyBrain, wireframeMaterial));
+        // lowPolyBrainObj.addAxesHelper(5000);
+        // lowPolyBrainObj.setScale(1.2,1.2,1.2);
+        // const wireObj = lowPolyBrainObj;
+        //  this.cyberBrain.object3D.add(wireObj.object3D);
+        //  wireObj.setPosition(0,0,0);
+        //  this.gameObjects.push(wireObj);
+         
+        
+       const wireComponent = this.cyberBrain.addScript(wireCopy,{scale:1.08, story:this,opacity:.2,color:this.colorStringToHex('#fd3939d7')});
+        const wireObj =  wireComponent.wireGameObj;
 
         
-        const wireComponent = this.cyberBrain.addScript(wireCopy,{scale:1.08, story:this,opacity:.2,color:this.colorStringToHex('#fd3939d7')});
-        const wireObj =  wireComponent.wireGameObj;
-        
+
          wireObj.addScript(phaseClipping,{speed:.6,direction:'down',loop:true,downPauseTime:1000});
         const clipper2 = wireObj.getComponent('phaseClipping');
         if(clipper2){
@@ -130,6 +150,64 @@ export class laptopPopScene extends Story{
         
     }
 
+    createFloatingObjects(){
+        const musicNoteDetails = {
+        details:[.3,.3,.3],
+        position:[1,.5,.5],
+        // rotation:[0,0,0],
+        wireScale:1.01,
+        wireColor:'#2569fcd7',
+        lightColor:'#15efffd7'
+        }
+        const musicNote1 = this.spawnFloatingObject('models/musicNote1a.glb',musicNoteDetails);
+        const musicNote2 = this.spawnFloatingObject('models/musicNote1b.glb',musicNoteDetails);
+        const musicNote3 = this.spawnFloatingObject('models/musicNote2a.glb',musicNoteDetails);
+        
+    
+    }
+    //music note details
+    
+    //spawn a floating object
+    spawnFloatingObject(model,details){
+        const flObj = new GameObject();
+        const flObjLoad = ()=>{
+            
+            flObj.setScale(details.scale[0],details.scale[1],details.scale[2]); //initial positioning
+            flObj.setPosition(details.position[0],details.position[1],details.position[2]);
+            if (details.rotation != undefined){
+                flObj.setRotation(details.rotation[0],details.rotation[1],details.rotation[2]);
+            }
+            flObj.addScript(scripts.HoverScript,{amplitude:.6});
+            flObj.addScript(rotate,{speed:1.5,axis:'y'});
+            // const clipper = flObj.addScript(phaseClipping,{speed:.30,direction:'down',loop:false});
+            // clipper.startClipping();
+            const wireComponent = flObj.addScript(wireCopy,{scale:details.wireScale, story:this,opacity:.2,color:this.colorStringToHex(details.wireColor)});
+            const wireObj =  wireComponent.wireGameObj;
+            wireObj.addScript(phaseClipping,{speed:.6,direction:'down',loop:true,downPauseTime:1000});
+            const wireClipping = wireObj.getComponent('phaseClipping');
+            if(wireClipping){
+                wireClipping.startClipping();
+            }
+            //wireObj.addScript(syncAnimation,{targetGameObject:flObj});
+            flObj.popScript = flObj.addScript(scalePop,{scalePercent:1.2,time:.3});
+            flObj.ShowPop = ()=>{ //show and pop
+                flObj.show();
+                flObj.popScript.pop();
+            };
+            flObj.HidePop = ()=>{
+                flObj.popScript.hide();
+            };
+            const light = new THREE.PointLight(this.colorStringToHex(details.lightColor), 4);
+            light.position.set(1,.5,.5);
+            light.lookAt(flObj.object3D.position);
+            flObj.object3D.add(light);
+            flObj.hide();
+        }
+       
+        flObj.loadModelToStory(model,this,flObjLoad);
+        return flObj;
+    }
+    //spawn a music note
     spawnMusicNote(){
          this.spawnCyberBrain();
         
