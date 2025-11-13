@@ -15,37 +15,35 @@ export class cyclePop {
     this.listIndex = 0;
     this.timeOut = null;
     this.currentShowingObject =null;
+    this.timer =0;
+    this.running =false;
   }
 
   update(deltaTime) {
     //update logic goes here
-
+    if(this.running) this.timer += deltaTime;
+   
+    if (this.timer >= this.time){
+      this.showNextObject();
+      this.timer =0;
+    }
   }
   start(){
-    // this.currentShowingObject = this.objects[this.listIndex][this.objectIndex];
-    
-    ///this.showNextObject();
-    //setTimeout(this.showNextObject,this.time);
+
   }
 
   startCycle(){
     this.currentShowingObject = this.objects[this.listIndex][this.objectIndex]; //start at zero\
-    console.log('objectIndex',this.objectIndex);
-    console.log('listIndex',this.listIndex);
-    console.log('startCycle currentShowingObject',this.currentShowingObject);
     this.currentShowingObject.showPop();
-    this.timeOut = setTimeout(() => this.showNextObject(), this.time); 
+    this.timer =0;
+    this.running = true;
   }
   stopCycle(){
-    clearTimeout(this.timeOut);
     this.currentShowingObject.hidePop();
+    this.running = false;
   }
 
   showNextObject(){
-    console.log('show Next object Called');
-    console.log('currentShowingObject',this.currentShowingObject);
-    console.log('objectIndex',this.objectIndex);
-    console.log('listIndex',this.listIndex);
     this.currentShowingObject.hidePop();
     this.objectIndex++;
     if(this.objectIndex >= this.objects[this.listIndex].length){ //loop back around
@@ -54,7 +52,6 @@ export class cyclePop {
     this.currentShowingObject = this.objects[this.listIndex][this.objectIndex];
     this.currentShowingObject.showPop();
     //TODO: move currentShowingObject to a point based off of the laptop
-    this.timeOut = setTimeout(() => this.showNextObject(), this.time);
   }
   nextList(){
     this.listIndex++;//next list

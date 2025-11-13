@@ -18,6 +18,7 @@ import {cyberBrain,sphereBrain} from '/js/assets/Objects.js';
 import {cyclePop} from '/js/assets/scripts/cyclePop.js';
 import {createOutlineObject} from '/js/assets/scripts/createOutlineObject.js';
 import {centerMesh} from '/js/utils/utils.js';
+import {constrain} from '/js/assets/scripts/constrain.js';
 
 //Imports for 3d Assets
 
@@ -49,7 +50,7 @@ export class laptopPopScene extends Story{
             console.log('Available animations:', animNames);
             // Play animation when content section enters view, completes by halfway point
             const popObjects = this.createFloatingObjects(this.laptop); //generates all objects into 2d array
-            this.laptop.cyclePop = this.laptop.addScript(cyclePop,{objects:popObjects,time:4000});
+            this.laptop.cyclePop = this.laptop.addScript(cyclePop,{objects:popObjects,time:4});
             
             this.laptop.PlayAnimationOnEnter(animNames[0],'#laptopPopTHREE', false,.6,()=>{  //function callback on completion
               
@@ -80,7 +81,7 @@ export class laptopPopScene extends Story{
 
           //Add Behavior Scripts
             this.laptop.addScript(scripts.HoverScript,{amplitude:.6});
-            //this.laptop.addScript(scripts.lookAtMouse,{app:this.app});
+           // this.laptop.addScript(scripts.lookAtMouse,{app:this.app});
             this.laptop.popScript = this.laptop.addScript(scalePop,{scalePercent:1.2,time:.3});
             this.laptop.moveScript = this.laptop.addScript(moveTo,{targetPosition:{x:-1.2,y:.5,z:0},targetRotation:{x:Math.PI/9,y:Math.PI/4,z:0},duration:2});
             
@@ -108,24 +109,8 @@ export class laptopPopScene extends Story{
         let lapLight2 = new THREE.PointLight(this.colorStringToHex('#08129bff'),12);
         lapLight2.position.set(-2,0,2);
         this.mainScene.add(lapLight2);
-            
-        // add helper object to light
-        // const helper = new THREE.PointLightHelper(lapLight, 2);
-        // this.mainScene.add(helper);
-        
-        
-        //lapLight.position.copy(this.laptop.object3D.position);      
-        
-
-
-        
-        
-        
         
     }
-    //spawn all the objects for each section, [[brain],[image1,image2,image3],[musicNote1,musicNote2,]]
-    //hide all objects , give laptop a script cyclePop, should hold a sectionIndex and objectIndex. the timer will hide the last object, and then show and call pop on the next object.
-    //need a script that takes a list of gameobjects that are already spawned. 
 
     spawnCyberBrain(){
         this.cyberBrain = new GameObject(sphereBrain);
@@ -145,14 +130,7 @@ export class laptopPopScene extends Story{
               side: THREE.FrontSide
             });
         
-        const lowPolyBrainObj = new GameObject( new THREE.Mesh(lowPolyBrain, wireframeMaterial));
-        // lowPolyBrainObj.addAxesHelper(5000);
-        // lowPolyBrainObj.setScale(1.2,1.2,1.2);
-        // const wireObj = lowPolyBrainObj;
-        //  this.cyberBrain.object3D.add(wireObj.object3D);
-        //  wireObj.setPosition(0,0,0);
-        //  this.gameObjects.push(wireObj);
-         
+    
         
        const wireComponent = this.cyberBrain.addScript(wireCopy,{scale:1.08, story:this,opacity:.2,color:this.colorStringToHex('#fd3939d7')});
         const wireObj =  wireComponent.wireGameObj;
@@ -167,24 +145,40 @@ export class laptopPopScene extends Story{
        
         this.cyberBrain.popScript=this.cyberBrain.addScript(scalePop,{scalePercent:1.2,time:.3});   
         this.cyberBrain.addScript(rotate,{speed:.5,axis:'y'});
-        this.cyberBrain.addScript(scripts.HoverScript,{amplitude:.6});
+        //this.cyberBrain.addScript(scripts.HoverScript,{amplitude:.6});
 
         this.cyberBrain.popScript.pop();
+        this.cyberBrain.addScript(constrain,{targetGameObject:this.laptop,constrainPosition:true});
         
+        return this.cyberBrain;
         
     }
 
     createFloatingObjects(laptopRef){
         //pass in reference to laptop to get its child spawn position
         const musicNoteDetails = {
-        scale:[.4,.4,.4],
-        position:[1,.5,.5],
+        scale:[.3,.3,.3],
+        position:[1,.8,.5],
         // rotation:[0,0,0],
-        wireScale:1.01,
+        wireScale:1.02,
         wireOpacity:.9,
+        outlineThickness:1.02,
         wireColor:'#2569fcd7',
         lightColor:'#15efffd7',
-        laptopObj:laptopRef
+        laptopObj:laptopRef,
+        rotateSpeed:1.5,
+        }
+        const brain2Details = {
+        scale:[.3,.3,.3],
+        position:[1,.8,.5],
+        // rotation:[0,0,0],
+        wireScale:1.05,
+        wireOpacity:.4,
+        outlineThickness:3.3,
+        wireColor:'#f34e4ed7',
+        lightColor:'#ff8575ff',
+        laptopObj:laptopRef,
+        rotateSpeed:.5,
         }
         const musicNote1 = this.spawnFloatingObject('models/musicNote1a.glb',musicNoteDetails);
         const musicNote2 = this.spawnFloatingObject('models/musicNote2a.glb',musicNoteDetails);
@@ -195,8 +189,9 @@ export class laptopPopScene extends Story{
         // const photo3 = this.createFloatingPhoto('textures/fireflyDog.png',musicNoteDetails);
 
         const brain1 = this.spawnFloatingObject('models/brainModel1High.glb',musicNoteDetails);
+        const brain2 = this.spawnFloatingObject(sphereBrain,brain2Details);
 
-        const floatingObjectsList =[[musicNote1,musicNote2,brain1]];
+        const floatingObjectsList =[[musicNote1,musicNote2,brain1,brain2]];
         //const floatingObjectsList =[[musicNote1,musicNote2,musicNote3], [photo1,photo2,photo3]];
         return floatingObjectsList; //returns list of hidden floating objects for the laptop to cycle through
     
@@ -242,10 +237,12 @@ export class laptopPopScene extends Story{
         //add popscript and its instance property functions initially
           const popScript = flObj.addScript(scalePop,{scalePercent:1.2,time:.3});
             flObj.showPop = ()=>{ //show and pop
+                console.log('showing pop');
                 flObj.show();
                 popScript.pop();
             };
             flObj.hidePop = ()=>{
+                console.log('hiding pop');
                 flObj.hide();
             };
         const flObjLoad = ()=>{
@@ -253,18 +250,25 @@ export class laptopPopScene extends Story{
             
             flObj.object3D.traverse((child)=>{
                 if(child.isMesh){
-                    centerMesh(child);
+                    // centerMesh(child);
+                    child.geometry.center();
                     // child.scale.set(details.scale[0],details.scale[1],details.scale[2]);
                     child.scale.multiplyScalar(details.scale[0]);
                 }
             })
-            popScript.updateOriginalScale();
+            if(flObj.object3D.isMesh){
+                flObj.object3D.scale.multiplyScalar(details.scale[0]);
+            }
+
+            //popScript.updateOriginalScale();
+            //flObj.setScale(details.scale[0],details.scale[1],details.scale[2]);
             flObj.setPosition(details.position[0],details.position[1],details.position[2]);
             if (details.rotation != undefined){
                 flObj.setRotation(details.rotation[0],details.rotation[1],details.rotation[2]);
             }
-            flObj.addScript(scripts.HoverScript,{amplitude:.6});
-            flObj.addScript(rotate,{speed:1.5,axis:'y'});
+            // flObj.addScript(scripts.HoverScript,{amplitude:.6});
+            flObj.addScript(rotate,{speed:details.rotateSpeed,axis:'y'});
+           // flObj.setRotation(Math.PI/9,Math.PI/4,Math.PI/9);
             // const clipper = flObj.addScript(phaseClipping,{speed:.30,direction:'down',loop:false});
             // clipper.startClipping();
             const wireComponent = flObj.addScript(wireCopy,{scale:details.wireScale, story:this,opacity:details.wireOpacity,color:this.colorStringToHex(details.wireColor)});
@@ -282,68 +286,91 @@ export class laptopPopScene extends Story{
             flObj.object3D.add(light);
             flObj.hide();
 
+            flObj.addScript(constrain,{targetGameObject:this.laptop,constrainPosition:true,constrainRotation:false,constrainScale:false})
             // Create outline after model is loaded
-            const outline = flObj.addScript(createOutlineObject,{color:this.colorStringToHex('#ff26c9ff'),thickness:1.02,opacity:.5});
+            const outline = flObj.addScript(createOutlineObject,{color:this.colorStringToHex('#ff26c9ff'),thickness:details.outlineThickness,opacity:.5});
             outline.createOutline();
+            // flObj.addAxesHelper(20);
         }
-        
 
-        flObj.loadModelToStory(model,this,flObjLoad);
+        // const floatContainer = new GameObject(new THREE.Object3D());
+        // this.laptop.object3D.add(floatContainer.object3D);
+        
+        //check if model is a string
+        if (typeof model === 'string'){
+            
+            flObj.loadModelToStory(model,this,flObjLoad);
+            console.log(flObj);
+        }
+        else if (model instanceof THREE.Object3D){
+            console.log('---------------THREE OBJECT');
+            // flObj.object3D.add(model); // Add as child instead of replacing
+            flObj.object3D = model;
+            this.addToStory(flObj); // Add to scene and update loop     
+            flObjLoad();
+            console.log(flObj);
+        }
         return flObj;
     }
-    //spawn a music note
-    spawnMusicNote(){
-         this.spawnCyberBrain();
-        
-         this.musicNote = new GameObject();
-   
-        this.noteLoad = ()=>{
-            this.musicNote.setScale(.3,.3,.3); //initial positioning
-            this.musicNote.setPosition(1,.5,.5);
-            // Play animation when content section enters view, completes by halfway point
-            //this.musicNote.PlayAnimationOnEnter('animation_0','#laptopPopTHREE', false,.6);
-          //Add Behavior Scripts
-            this.musicNote.addScript(scripts.HoverScript,{amplitude:.6});
-            this.musicNote.addScript(rotate,{speed:1.5,axis:'y'});
-            
-            console.log('loaded');
 
-             this.musicNote.addScript(phaseClipping,{ speed: .30,direction:'down',loop:false });
-                const clipper = this.musicNote.getComponent('phaseClipping');
-                if(clipper) setTimeout(()=>{clipper.startClipping();},1000);
-                //Create a wire copy, add a phase clip to it
-                //to do make a script that creates a wire copy and adds a phase clip to it
-                 const wireComponent = this.musicNote.addScript(wireCopy,{scale:1.01, story:this});
-                 const wireObj =  wireComponent.wireGameObj;
-                 console.log(wireObj);
-                 wireObj.addScript(phaseClipping,{speed:.6,direction:'down',loop:true,downPauseTime:1000});
-                const clipper2 = wireObj.getComponent('phaseClipping');
-                if(clipper2){
-                    clipper2.startClipping();
-                }
-                wireObj.addScript(syncAnimation,{targetGameObject:this.musicNote});
-
-                console.log(this.musicNote.object3D);
-                //add pop script
-                this.musicNote.popScript = this.musicNote.addScript(scalePop,{scalePercent:1.2,time:.3});
-                this.musicNote.popScript.pop();
-
-                //add grenlight and spawn ring
-                this.greenlight = new THREE.PointLight(0xAAFF00, 4);
-                this.greenlight.position.set(1,.5,.5);
-                this.greenlight.lookAt(this.musicNote.object3D.position);
-                this.musicNote.object3D.add(this.greenlight);
-
-                //spawn ring
-                this.musicNote.addScript(spawnRing,{scale:5.5,scaleY:2,color:this.colorStringToHex('#c8ff5a64'),segments:16});
-                this.ring = this.musicNote.getComponent('spawnRing').spawnRing();
-               
-                
-        };
-        
-        //this.musicNote.loadModelToStory('models/musicNote1a.glb',this,this.noteLoad);
+    addShowPopFunctions(obj){
 
     }
+
+
+    //spawn a music note
+    // spawnMusicNote(){
+    //      this.spawnCyberBrain();
+        
+    //      this.musicNote = new GameObject();
+   
+    //     this.noteLoad = ()=>{
+    //         this.musicNote.setScale(.3,.3,.3); //initial positioning
+    //         this.musicNote.setPosition(1,.5,.5);
+    //         // Play animation when content section enters view, completes by halfway point
+    //         //this.musicNote.PlayAnimationOnEnter('animation_0','#laptopPopTHREE', false,.6);
+    //       //Add Behavior Scripts
+    //         this.musicNote.addScript(scripts.HoverScript,{amplitude:.6});
+    //         this.musicNote.addScript(rotate,{speed:1.5,axis:'y'});
+            
+    //         console.log('loaded');
+
+    //          this.musicNote.addScript(phaseClipping,{ speed: .30,direction:'down',loop:false });
+    //             const clipper = this.musicNote.getComponent('phaseClipping');
+    //             if(clipper) setTimeout(()=>{clipper.startClipping();},1000);
+    //             //Create a wire copy, add a phase clip to it
+    //             //to do make a script that creates a wire copy and adds a phase clip to it
+    //              const wireComponent = this.musicNote.addScript(wireCopy,{scale:1.01, story:this});
+    //              const wireObj =  wireComponent.wireGameObj;
+    //              console.log(wireObj);
+    //              wireObj.addScript(phaseClipping,{speed:.6,direction:'down',loop:true,downPauseTime:1000});
+    //             const clipper2 = wireObj.getComponent('phaseClipping');
+    //             if(clipper2){
+    //                 clipper2.startClipping();
+    //             }
+    //             wireObj.addScript(syncAnimation,{targetGameObject:this.musicNote});
+
+    //             console.log(this.musicNote.object3D);
+    //             //add pop script
+    //             this.musicNote.popScript = this.musicNote.addScript(scalePop,{scalePercent:1.2,time:.3});
+    //             this.musicNote.popScript.pop();
+
+    //             //add grenlight and spawn ring
+    //             this.greenlight = new THREE.PointLight(0xAAFF00, 4);
+    //             this.greenlight.position.set(1,.5,.5);
+    //             this.greenlight.lookAt(this.musicNote.object3D.position);
+    //             this.musicNote.object3D.add(this.greenlight);
+
+    //             //spawn ring
+    //             this.musicNote.addScript(spawnRing,{scale:5.5,scaleY:2,color:this.colorStringToHex('#c8ff5a64'),segments:16});
+    //             this.ring = this.musicNote.getComponent('spawnRing').spawnRing();
+               
+                
+    //     };
+        
+    //     //this.musicNote.loadModelToStory('models/musicNote1a.glb',this,this.noteLoad);
+
+    // }
 
     // Called when leftmove1 div enters the screen
     onLeftMove1Enter() {

@@ -123,6 +123,11 @@ export class GameObject {
         setToColor(this.object3D,0x000000);
     }
 
+    /** Model Loading   
+     * @param {string} url - The URL of the GLTF model
+     * @param {Object3D} parent - The parent object to add the model to
+     * @param {function} onLoad - Callback function to execute when the model is loaded
+     */
     loadModelToStory(url,parent, onLoad) {
         const loader = new GLTFLoader();
         loader.load(url, (gltf) => {

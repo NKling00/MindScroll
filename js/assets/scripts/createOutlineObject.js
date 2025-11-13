@@ -13,6 +13,7 @@ export class createOutlineObject {
     this.thickness = params.thickness;
     this.opacity = params.opacity;
     this.outlineObject = null;
+    
   }
 
   start() {
@@ -30,19 +31,19 @@ export class createOutlineObject {
     // Clone the entire object3D hierarchy
     this.outlineObject = this.gameObject.object3D.clone();
     this.outlineObject.position.set(0,0,0);
-    this.outlineObject.scale.multiplyScalar(this.thickness);
+    //this.outlineObject.scale.multiplyScalar(this.thickness);
     // Apply outline material to all meshes in the cloned object
     this.outlineObject.traverse((child) => {
       if (child.isMesh) {
         child.material = outlineMaterial;
         // Scale each mesh slightly larger from its own center
-        // child.scale.multiplyScalar(this.thickness);
+         child.scale.multiplyScalar(this.thickness);
       }
     });
 
     // Add outline as a child so it follows the parent object
     this.gameObject.object3D.add(this.outlineObject);
-    console.log('outlineObject',this.outlineObject);
+    // console.log('outlineObject',this.outlineObject);
     this.outlineObject.visible = true;
   }
 
