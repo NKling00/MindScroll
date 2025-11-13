@@ -19,6 +19,7 @@ export class GameObject {
         this.var ={}; //use this to store custom variables
 
         this.cleanUpFlag = false;
+        this.updateFunctions =[];
     }
 
 
@@ -72,7 +73,10 @@ export class GameObject {
            // this.mixer.setTime(5);
             //console.log('currently playing frame',this.mixer.time);
         }
-        
+        //call simple update functions that get added externally
+        for (const updateFunction of this.updateFunctions){
+            updateFunction(deltaTime);
+        }
     }
 
     /**
@@ -143,7 +147,7 @@ export class GameObject {
             else if (parent instanceof THREE.Object3D){ 
                 parent.add(this.object3D);
             }
-            if (onLoad) onLoad();
+            if (onLoad) onLoad(); 
         });
     }
 
@@ -185,6 +189,61 @@ export class GameObject {
      */
     getAnimationNames() {
         return Object.keys(this.animationActions);
+    }
+
+    /**
+     * Gets the current frame number of the mixer's animation
+     * @param {string} animName - Name of the animation to check (optional, uses first animation if not provided)
+     * @param {number} fps - Frames per second of the animation (default: 30)
+     * @returns {number} Current frame number
+     */
+    getCurrentFrame(animName = null, fps = 30) {
+        if (!this.mixer) {
+            console.warn('No mixer found on this GameObject');
+            return 0;
+        }
+        
+        // Use provided animation name or get the first available one
+        const targetAnimName = animName || Object.keys(this.animationActions)[0];
+        const action = this.animationActions[targetAnimName];
+        
+        if (!action) {
+            console.warn(`Animation ${targetAnimName} not found`);
+            return 0;
+        }
+        
+        const currentTime = this.mixer.time;
+        const currentFrame = Math.floor(currentTime * fps);
+        
+        return currentFrame;
+    }
+
+    /**
+     * Gets the percentage completion of the currently playing animation
+     * @param {string} animName - Name of the animation to check (optional, uses first animation if not provided)
+     * @returns {number} Percentage completed (0-100)
+     */
+    getAnimationProgress(animName = null) {
+        if (!this.mixer) {
+            console.warn('No mixer found on this GameObject');
+            return 0;
+        }
+        
+        // Use provided animation name or get the first available one
+        const targetAnimName = animName || Object.keys(this.animationActions)[0];
+        const action = this.animationActions[targetAnimName];
+        
+        if (!action) {
+            console.warn(`Animation ${targetAnimName} not found`);
+            return 0;
+        }
+        
+        const currentTime = this.mixer.time;
+        const duration = action.getClip().duration;
+        const progress = (currentTime / duration) ;
+        
+        // return Math.min(progress, 100); // Clamp to 100%
+        return progress; // Clamp to 100%
     }
 
     disableFogMaterials(){

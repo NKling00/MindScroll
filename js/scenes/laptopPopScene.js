@@ -15,6 +15,9 @@ import {spawnRing} from '/js/assets/scripts/spawnRing.js';
 import {scaleTransition} from '/js/assets/scripts/scaleTransition.js';
 import {createVideoTexture} from '/js/utils/videoTexture.js';
 import {cyberBrain,sphereBrain} from '/js/assets/Objects.js';
+import {cyclePop} from '/js/assets/scripts/cyclePop.js';
+import {createOutlineObject} from '/js/assets/scripts/createOutlineObject.js';
+import {centerMesh} from '/js/utils/utils.js';
 
 //Imports for 3d Assets
 
@@ -24,10 +27,9 @@ export class laptopPopScene extends Story{
     setupObjects(){
 
         this.videoMaterial = createVideoTexture(document.getElementById('sphereVideo'));
-        this.musicNoteSpawned =false;
+        this.popDisplayStarted = false;
+        
         this.laptop = new GameObject(); 
-
-
         this.laptopLoad = ()=>{
 
             //find material in this model and assign it the video material
@@ -46,14 +48,36 @@ export class laptopPopScene extends Story{
             const animNames = this.laptop.getAnimationNames();
             console.log('Available animations:', animNames);
             // Play animation when content section enters view, completes by halfway point
-            this.laptop.PlayAnimationOnEnter(animNames[0],'#laptopPopTHREE', false,.6,()=>{ 
-                if (!this.musicNoteSpawned){
-                   setTimeout(()=> this.spawnMusicNote(),200);
-                    this.musicNoteSpawned = true;
-                    this.laptop.popScript.pop();
+            const popObjects = this.createFloatingObjects(this.laptop); //generates all objects into 2d array
+            this.laptop.cyclePop = this.laptop.addScript(cyclePop,{objects:popObjects,time:4000});
+            
+            this.laptop.PlayAnimationOnEnter(animNames[0],'#laptopPopTHREE', false,.6,()=>{  //function callback on completion
+              
+                if (!this.popDisplayStarted){
+                this.laptop.cyclePop.startCycle();
+                this.popDisplayNotStarted = true;
                 }
             });
-           
+            //add update function to handle revealing and hiding display objects
+            this.laptop.updateFunctions.push(()=>{
+                const prog = this.laptop.getAnimationProgress(animNames[0])
+                if( prog >= .48){
+                    // console.log('more than half way',this.laptop.getAnimationProgress(animNames[0]))
+                    if (!this.popDisplayStarted){
+                        this.laptop.cyclePop.startCycle();
+                        this.popDisplayStarted = true;
+                    }
+                    
+                }
+                else if (prog < .47){
+                    if (this.popDisplayStarted){
+                        this.laptop.cyclePop.stopCycle();
+                        this.popDisplayStarted = false;
+                    }
+                }
+            });
+
+
           //Add Behavior Scripts
             this.laptop.addScript(scripts.HoverScript,{amplitude:.6});
             //this.laptop.addScript(scripts.lookAtMouse,{app:this.app});
@@ -150,29 +174,91 @@ export class laptopPopScene extends Story{
         
     }
 
-    createFloatingObjects(){
+    createFloatingObjects(laptopRef){
+        //pass in reference to laptop to get its child spawn position
         const musicNoteDetails = {
-        details:[.3,.3,.3],
+        scale:[.4,.4,.4],
         position:[1,.5,.5],
         // rotation:[0,0,0],
         wireScale:1.01,
+        wireOpacity:.9,
         wireColor:'#2569fcd7',
-        lightColor:'#15efffd7'
+        lightColor:'#15efffd7',
+        laptopObj:laptopRef
         }
         const musicNote1 = this.spawnFloatingObject('models/musicNote1a.glb',musicNoteDetails);
-        const musicNote2 = this.spawnFloatingObject('models/musicNote1b.glb',musicNoteDetails);
-        const musicNote3 = this.spawnFloatingObject('models/musicNote2a.glb',musicNoteDetails);
+        const musicNote2 = this.spawnFloatingObject('models/musicNote2a.glb',musicNoteDetails);
+        // const musicNote3 = this.spawnFloatingObject('models/musicNote2a.glb',musicNoteDetails);
         
+        // const photo1 = this.createFloatingPhoto('textures/fireflyDog.png',musicNoteDetails);
+        // const photo2 = this.createFloatingPhoto('textures/fireflyDog.png',musicNoteDetails);
+        // const photo3 = this.createFloatingPhoto('textures/fireflyDog.png',musicNoteDetails);
+
+        const brain1 = this.spawnFloatingObject('models/brainModel1High.glb',musicNoteDetails);
+
+        const floatingObjectsList =[[musicNote1,musicNote2,brain1]];
+        //const floatingObjectsList =[[musicNote1,musicNote2,musicNote3], [photo1,photo2,photo3]];
+        return floatingObjectsList; //returns list of hidden floating objects for the laptop to cycle through
     
     }
-    //music note details
+    //generate floating photos
+    createFloatingPhoto(texture,details){
+        const thisTexture = new THREE.TextureLoader().load(texture);
+        const plane = new THREE.Mesh(new THREE.PlaneGeometry(1,1), new THREE.MeshBasicMaterial({map:thisTexture}));
+        const planeObj = new GameObject(plane);
+        planeObj.setScale(details.scale[0],details.scale[1],details.scale[2]); //initial positioning
+        planeObj.setPosition(details.position[0],details.position[1],details.position[2]);
+        if (details.rotation != undefined){
+            planeObj.setRotation(details.rotation[0],details.rotation[1],details.rotation[2]);
+        }
+        planeObj.addScript(scripts.HoverScript,{amplitude:.6});
+        planeObj.addScript(rotate,{speed:1.5,axis:'y'});
+        const wireComponent = planeObj.addScript(wireCopy,{scale:details.wireScale, story:this,opacity:.2,color:this.colorStringToHex(details.wireColor)});
+        const wireObj =  wireComponent.wireGameObj;
+        wireObj.addScript(phaseClipping,{speed:.6,direction:'down',loop:true,downPauseTime:1000});
+        const wireClipping = wireObj.getComponent('phaseClipping');
+        if(wireClipping){
+            wireClipping.startClipping();
+        }
+        planeObj.popScript = planeObj.addScript(scalePop,{scalePercent:1.2,time:.3});
+        planeObj.showPop = ()=>{ //show and pop
+            planeObj.show();
+            planeObj.popScript.pop();
+        };
+        planeObj.hidePop = ()=>{
+            planeObj.popScript.hide();
+        };
+        const light = new THREE.PointLight(this.colorStringToHex(details.lightColor), 4);
+        light.position.set(1,.5,.5);
+        light.lookAt(planeObj.object3D.position);
+        planeObj.object3D.add(light);
+        planeObj.hide();
+        return planeObj;
+    }
     
     //spawn a floating object
     spawnFloatingObject(model,details){
         const flObj = new GameObject();
+        //add popscript and its instance property functions initially
+          const popScript = flObj.addScript(scalePop,{scalePercent:1.2,time:.3});
+            flObj.showPop = ()=>{ //show and pop
+                flObj.show();
+                popScript.pop();
+            };
+            flObj.hidePop = ()=>{
+                flObj.hide();
+            };
         const flObjLoad = ()=>{
+            //flObj.setScale(details.scale[0],details.scale[1],details.scale[2]); //initial positioning
             
-            flObj.setScale(details.scale[0],details.scale[1],details.scale[2]); //initial positioning
+            flObj.object3D.traverse((child)=>{
+                if(child.isMesh){
+                    centerMesh(child);
+                    // child.scale.set(details.scale[0],details.scale[1],details.scale[2]);
+                    child.scale.multiplyScalar(details.scale[0]);
+                }
+            })
+            popScript.updateOriginalScale();
             flObj.setPosition(details.position[0],details.position[1],details.position[2]);
             if (details.rotation != undefined){
                 flObj.setRotation(details.rotation[0],details.rotation[1],details.rotation[2]);
@@ -181,7 +267,7 @@ export class laptopPopScene extends Story{
             flObj.addScript(rotate,{speed:1.5,axis:'y'});
             // const clipper = flObj.addScript(phaseClipping,{speed:.30,direction:'down',loop:false});
             // clipper.startClipping();
-            const wireComponent = flObj.addScript(wireCopy,{scale:details.wireScale, story:this,opacity:.2,color:this.colorStringToHex(details.wireColor)});
+            const wireComponent = flObj.addScript(wireCopy,{scale:details.wireScale, story:this,opacity:details.wireOpacity,color:this.colorStringToHex(details.wireColor)});
             const wireObj =  wireComponent.wireGameObj;
             wireObj.addScript(phaseClipping,{speed:.6,direction:'down',loop:true,downPauseTime:1000});
             const wireClipping = wireObj.getComponent('phaseClipping');
@@ -189,21 +275,19 @@ export class laptopPopScene extends Story{
                 wireClipping.startClipping();
             }
             //wireObj.addScript(syncAnimation,{targetGameObject:flObj});
-            flObj.popScript = flObj.addScript(scalePop,{scalePercent:1.2,time:.3});
-            flObj.ShowPop = ()=>{ //show and pop
-                flObj.show();
-                flObj.popScript.pop();
-            };
-            flObj.HidePop = ()=>{
-                flObj.popScript.hide();
-            };
+          
             const light = new THREE.PointLight(this.colorStringToHex(details.lightColor), 4);
             light.position.set(1,.5,.5);
             light.lookAt(flObj.object3D.position);
             flObj.object3D.add(light);
             flObj.hide();
+
+            // Create outline after model is loaded
+            const outline = flObj.addScript(createOutlineObject,{color:this.colorStringToHex('#ff26c9ff'),thickness:1.02,opacity:.5});
+            outline.createOutline();
         }
-       
+        
+
         flObj.loadModelToStory(model,this,flObjLoad);
         return flObj;
     }

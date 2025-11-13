@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-export class ObjectScript {
+export class cyclePop {
   static parameters = { //these parameters do nothing on their own, but gameObject class reads them to use as defaults to pass the constructor
     //example: speed:{ type: 'number', default: 1.0 },
     objects:{ type: 'array', default: [] },
@@ -22,19 +22,30 @@ export class ObjectScript {
 
   }
   start(){
-    this.currentShowingObject = this.objects[this.listIndex][this.objectIndex];
+    // this.currentShowingObject = this.objects[this.listIndex][this.objectIndex];
     
-    showNextObject();
-    setTimeout(showNextObject,this.time);
+    ///this.showNextObject();
+    //setTimeout(this.showNextObject,this.time);
   }
 
   startCycle(){
-    this.currentShowingObject = this.objects[this.listIndex][this.objectIndex]; //start at zero
+    this.currentShowingObject = this.objects[this.listIndex][this.objectIndex]; //start at zero\
+    console.log('objectIndex',this.objectIndex);
+    console.log('listIndex',this.listIndex);
+    console.log('startCycle currentShowingObject',this.currentShowingObject);
     this.currentShowingObject.showPop();
-    setTimeout(showNextObject,this.time);
+    this.timeOut = setTimeout(() => this.showNextObject(), this.time); 
+  }
+  stopCycle(){
+    clearTimeout(this.timeOut);
+    this.currentShowingObject.hidePop();
   }
 
   showNextObject(){
+    console.log('show Next object Called');
+    console.log('currentShowingObject',this.currentShowingObject);
+    console.log('objectIndex',this.objectIndex);
+    console.log('listIndex',this.listIndex);
     this.currentShowingObject.hidePop();
     this.objectIndex++;
     if(this.objectIndex >= this.objects[this.listIndex].length){ //loop back around
@@ -42,16 +53,17 @@ export class ObjectScript {
     }
     this.currentShowingObject = this.objects[this.listIndex][this.objectIndex];
     this.currentShowingObject.showPop();
-    this.timeOut = setTimeout(showNextObject,this.time);
+    //TODO: move currentShowingObject to a point based off of the laptop
+    this.timeOut = setTimeout(() => this.showNextObject(), this.time);
   }
   nextList(){
     this.listIndex++;//next list
-    if (this.listIndex >= this.listIndex.length){ //loop back around
+    if (this.listIndex >= this.objects.length){ //loop back around
       this.listIndex = 0;
     }
     this.objectIndex = 0; //start from the beginning of the objects in the list
     clearTimeout(this.timeOut); // clear the current timeout
-    showNextObject();
+    this.showNextObject();
   }
   backList(){
     this.listIndex--;//previous list
@@ -60,12 +72,12 @@ export class ObjectScript {
     }
     this.objectIndex = 0; //start from the beginning of the objects in the list
     clearTimeout(this.timeOut); // clear the current timeout
-    showNextObject();
+    this.showNextObject();
   }
   goToList(ind){
     this.listIndex = ind;
     this.objectIndex = 0; //start from the beginning of the objects in the list
     clearTimeout(this.timeOut); // clear the current timeout
-    showNextObject();
+    this.showNextObject();
   }
 }
