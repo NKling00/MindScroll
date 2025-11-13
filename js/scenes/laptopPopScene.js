@@ -78,7 +78,6 @@ export class laptopPopScene extends Story{
                 }
             });
 
-
           //Add Behavior Scripts
             this.laptop.addScript(scripts.HoverScript,{amplitude:.6});
            // this.laptop.addScript(scripts.lookAtMouse,{app:this.app});
@@ -112,53 +111,11 @@ export class laptopPopScene extends Story{
         
     }
 
-    spawnCyberBrain(){
-        this.cyberBrain = new GameObject(sphereBrain);
-        this.addToStory(this.cyberBrain); 
-        this.cyberBrain.setPosition(.5,1,.5);
-       // this.cyberBrain.setScale(.5,.6,-.7); //initial positioning
-
-        this.cyberBrain.setScale(.9,.9,.95); //initial positioning
-        this.cyberBrain.setRotation(Math.PI/9,Math.PI/4,Math.PI/9);
-
-        const lowPolyBrain = new THREE.IcosahedronGeometry(1,2);
-         const wireframeMaterial = new THREE.MeshBasicMaterial({
-              color:this.colorStringToHex('#fd3939d7'),
-              wireframe:true,
-              transparent:true,
-              opacity:.8,
-              side: THREE.FrontSide
-            });
-        
-    
-        
-       const wireComponent = this.cyberBrain.addScript(wireCopy,{scale:1.08, story:this,opacity:.2,color:this.colorStringToHex('#fd3939d7')});
-        const wireObj =  wireComponent.wireGameObj;
-
-        
-
-         wireObj.addScript(phaseClipping,{speed:.6,direction:'down',loop:true,downPauseTime:1000});
-        const clipper2 = wireObj.getComponent('phaseClipping');
-        if(clipper2){
-            clipper2.startClipping();
-        }
-       
-        this.cyberBrain.popScript=this.cyberBrain.addScript(scalePop,{scalePercent:1.2,time:.3});   
-        this.cyberBrain.addScript(rotate,{speed:.5,axis:'y'});
-        //this.cyberBrain.addScript(scripts.HoverScript,{amplitude:.6});
-
-        this.cyberBrain.popScript.pop();
-        this.cyberBrain.addScript(constrain,{targetGameObject:this.laptop,constrainPosition:true});
-        
-        return this.cyberBrain;
-        
-    }
-
     createFloatingObjects(laptopRef){
         //pass in reference to laptop to get its child spawn position
         const musicNoteDetails = {
         scale:[.3,.3,.3],
-        position:[1,.8,.5],
+        position:[0,1.8,.5],
         // rotation:[0,0,0],
         wireScale:1.02,
         wireOpacity:.9,
@@ -170,7 +127,7 @@ export class laptopPopScene extends Story{
         }
         const brain2Details = {
         scale:[.3,.3,.3],
-        position:[1,.8,.5],
+        position:[0,1.8,.5],
         // rotation:[0,0,0],
         wireScale:1.05,
         wireOpacity:.4,
@@ -252,7 +209,6 @@ export class laptopPopScene extends Story{
                 if(child.isMesh){
                     // centerMesh(child);
                     child.geometry.center();
-                    // child.scale.set(details.scale[0],details.scale[1],details.scale[2]);
                     child.scale.multiplyScalar(details.scale[0]);
                 }
             })
@@ -260,9 +216,13 @@ export class laptopPopScene extends Story{
                 flObj.object3D.scale.multiplyScalar(details.scale[0]);
             }
 
-            //popScript.updateOriginalScale();
-            //flObj.setScale(details.scale[0],details.scale[1],details.scale[2]);
-            flObj.setPosition(details.position[0],details.position[1],details.position[2]);
+
+             flObj.object3D.position.copy(this.laptop.object3D.position);
+             flObj.object3D.position.add(new THREE.Vector3(details.position[0],details.position[1],details.position[2]));
+             //flObj.object3D.position.add(details.position);
+            const constrainScript=flObj.addScript(constrain,{targetGameObject:this.laptop,constrainPosition:true,constrainRotation:false,constrainScale:false})
+            constrainScript.constrain();
+            // flObj.setPosition(details.position[0],details.position[1],details.position[2]);
             if (details.rotation != undefined){
                 flObj.setRotation(details.rotation[0],details.rotation[1],details.rotation[2]);
             }
@@ -286,10 +246,14 @@ export class laptopPopScene extends Story{
             flObj.object3D.add(light);
             flObj.hide();
 
-            flObj.addScript(constrain,{targetGameObject:this.laptop,constrainPosition:true,constrainRotation:false,constrainScale:false})
+            
+            
             // Create outline after model is loaded
             const outline = flObj.addScript(createOutlineObject,{color:this.colorStringToHex('#ff26c9ff'),thickness:details.outlineThickness,opacity:.5});
             outline.createOutline();
+
+             flObj.addScript(spawnRing,{scale:1.0,scaleY:1.3,color:this.colorStringToHex('#5aa7ff64'),segments:16});
+                const ring = flObj.getComponent('spawnRing').spawnRing();
             // flObj.addAxesHelper(20);
         }
 
@@ -313,9 +277,6 @@ export class laptopPopScene extends Story{
         return flObj;
     }
 
-    addShowPopFunctions(obj){
-
-    }
 
 
     //spawn a music note

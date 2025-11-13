@@ -28,7 +28,12 @@ export class constrain {
   }
 
   start() {
-    if (!this.targetGameObject) {
+  
+  }
+
+
+  constrain(){
+      if (!this.targetGameObject) {
       console.warn('constrain script: No target GameObject provided');
       return;
     }
@@ -56,6 +61,7 @@ export class constrain {
     
     this.initialized = true;
   }
+
 
   update(deltaTime) {
     if (!this.initialized || !this.targetGameObject) return;
