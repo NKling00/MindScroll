@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {GameObject} from '/js/engine/gameObject.js';
 import Stats from 'stats.js';
+import {HierarchyViewer} from '/js/utils/hierarchyViewer.js';
 
 
 /**
@@ -35,6 +36,7 @@ export class Story {
         this.init();
         window.addEventListener('resize', () => this.onWindowResize());
         this.setupDebugKeyboardControls();
+        //this.viewer = new HierarchyViewer(this);
     }
 
     

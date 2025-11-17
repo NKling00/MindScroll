@@ -47,7 +47,7 @@ export class laptopPopScene extends Story{
             this.laptop.setRotation(this.laptop.rotationPositions[0].x,this.laptop.rotationPositions[0].y,this.laptop.rotationPositions[0].z);//initial rotation
     
             const animNames = this.laptop.getAnimationNames();
-            //console.log('Available animations:', animNames);
+            console.log('Available animations:', animNames);
             // Play animation when content section enters view, completes by halfway point
             const popObjects = this.createFloatingObjects(); //generates all objects into 2d array
             this.laptop.cyclePop = this.laptop.addScript(cyclePop,{objects:popObjects,time:4});
@@ -79,7 +79,7 @@ export class laptopPopScene extends Story{
             });
 
           //Add Behavior Scripts
-            this.laptop.addScript(scripts.HoverScript,{amplitude:.3});
+            this.laptop.addScript(scripts.HoverScript,{amplitude:.6});
            // this.laptop.addScript(scripts.lookAtMouse,{app:this.app});
             this.laptop.popScript = this.laptop.addScript(scalePop,{scalePercent:1.2,time:.3});
             this.laptop.moveScript = this.laptop.addScript(moveTo,{targetPosition:{x:-1.2,y:.5,z:0},targetRotation:{x:Math.PI/9,y:Math.PI/4,z:0},duration:2});
@@ -92,12 +92,12 @@ export class laptopPopScene extends Story{
             //go through the laptops materials and increase specular on all materials
             this.laptop.object3D.traverse((child)=>{
                 if (child.isMesh){
-                    // console.log(child.material);
+                    console.log(child.material);
                     child.material.roughness = .6;    
                 }
             });
             
-            // console.log('loaded');
+            console.log('loaded');
         };
         this.laptop.loadModelToStory('models/laptop01.glb',this,this.laptopLoad);
 
@@ -132,8 +132,8 @@ export class laptopPopScene extends Story{
         wireScale:1.05,
         wireOpacity:.4,
         outlineThickness:3.3,
-        wireColor:'#ff86d7d7',
-        lightColor:'#a87bfdff',
+        wireColor:'#f34e4ed7',
+        lightColor:'#ff8575ff',
         rotateSpeed:.5,
         ring:false
         }
@@ -148,7 +148,7 @@ export class laptopPopScene extends Story{
         const brain1 = this.spawnFloatingObject('models/brainModel1High.glb',musicNoteDetails);
         const brain2 = this.spawnFloatingObject(sphereBrain,brain2Details);
 
-        const floatingObjectsList =[[brain2],[musicNote1,musicNote2],[brain1]];
+        const floatingObjectsList =[[brain2],[musicNote1,musicNote2]];
         //const floatingObjectsList =[[musicNote1,musicNote2,musicNote3], [photo1,photo2,photo3]];
         return floatingObjectsList; //returns list of hidden floating objects for the laptop to cycle through
     
@@ -194,24 +194,24 @@ export class laptopPopScene extends Story{
         //add popscript and its instance property functions initially
           const popScript = flObj.addScript(scalePop,{scalePercent:1.2,time:.3});
             flObj.showPop = ()=>{ //show and pop
-                // console.log('showing pop');
+                console.log('showing pop');
                 flObj.show();
                 popScript.pop();
             };
             flObj.hidePop = ()=>{
-                // console.log('hiding pop');
+                console.log('hiding pop');
                 flObj.hide();
             };
         const flObjLoad = ()=>{
             //flObj.setScale(details.scale[0],details.scale[1],details.scale[2]); //initial positioning
-            //set scaling
+            
             flObj.object3D.traverse((child)=>{
                 if(child.isMesh){
                     // centerMesh(child);
                     child.geometry.center();
                     child.scale.multiplyScalar(details.scale[0]);
                 }
-            });
+            })
             if(flObj.object3D.isMesh){
                 flObj.object3D.scale.multiplyScalar(details.scale[0]);
             }
@@ -219,6 +219,7 @@ export class laptopPopScene extends Story{
 
              flObj.object3D.position.copy(this.laptop.object3D.position);
              flObj.object3D.position.add(new THREE.Vector3(details.position[0],details.position[1],details.position[2]));
+             //flObj.object3D.position.add(details.position);
             const constrainScript=flObj.addScript(constrain,{targetGameObject:this.laptop,constrainPosition:true,constrainRotation:false,constrainScale:false})
             constrainScript.constrain();
             // flObj.setPosition(details.position[0],details.position[1],details.position[2]);
@@ -250,7 +251,7 @@ export class laptopPopScene extends Story{
             // Create outline after model is loaded
             const outline = flObj.addScript(createOutlineObject,{color:this.colorStringToHex('#ff26c9ff'),thickness:details.outlineThickness,opacity:.5});
             outline.createOutline();
-
+            
             if (details.ring){
              flObj.addScript(spawnRing,{scale:1.0,scaleY:1.3,color:this.colorStringToHex('#5aa7ff64'),segments:16});
                 const ring = flObj.getComponent('spawnRing').spawnRing();
@@ -265,10 +266,10 @@ export class laptopPopScene extends Story{
         if (typeof model === 'string'){
             
             flObj.loadModelToStory(model,this,flObjLoad);
-            // console.log(flObj);
+            console.log(flObj);
         }
         else if (model instanceof THREE.Object3D){
-            // console.log('---------------THREE OBJECT');
+            console.log('---------------THREE OBJECT');
             // flObj.object3D.add(model); // Add as child instead of replacing
             flObj.object3D = model;
             this.addToStory(flObj); // Add to scene and update loop     
@@ -278,34 +279,93 @@ export class laptopPopScene extends Story{
         return flObj;
     }
 
-    //Handle laptop changing states from mindScrollForm
-    monitorLaptopState(viewState){ //state: 0 left, 1 right
-        // console.log('CHANGE STATE');
-         console.log('viewState = ',viewState, 'currentScreenPosition = ',this.laptop.currentScreenPosition);
-        if (viewState == 0){
-            if (this.laptop.currentScreenPosition != 0){
-                // console.log('changing to pos 0');
-                this.laptop.moveToPos(0);
-                this.laptop.cyclePop.goToList(0);
-            }
-        }
-        else if (viewState == 1){
-            if (this.laptop.currentScreenPosition != 1){
-                // console.log('changing to pos 1');
+
+
+    //spawn a music note
+    // spawnMusicNote(){
+    //      this.spawnCyberBrain();
+        
+    //      this.musicNote = new GameObject();
+   
+    //     this.noteLoad = ()=>{
+    //         this.musicNote.setScale(.3,.3,.3); //initial positioning
+    //         this.musicNote.setPosition(1,.5,.5);
+    //         // Play animation when content section enters view, completes by halfway point
+    //         //this.musicNote.PlayAnimationOnEnter('animation_0','#laptopPopTHREE', false,.6);
+    //       //Add Behavior Scripts
+    //         this.musicNote.addScript(scripts.HoverScript,{amplitude:.6});
+    //         this.musicNote.addScript(rotate,{speed:1.5,axis:'y'});
+            
+    //         console.log('loaded');
+
+    //          this.musicNote.addScript(phaseClipping,{ speed: .30,direction:'down',loop:false });
+    //             const clipper = this.musicNote.getComponent('phaseClipping');
+    //             if(clipper) setTimeout(()=>{clipper.startClipping();},1000);
+    //             //Create a wire copy, add a phase clip to it
+    //             //to do make a script that creates a wire copy and adds a phase clip to it
+    //              const wireComponent = this.musicNote.addScript(wireCopy,{scale:1.01, story:this});
+    //              const wireObj =  wireComponent.wireGameObj;
+    //              console.log(wireObj);
+    //              wireObj.addScript(phaseClipping,{speed:.6,direction:'down',loop:true,downPauseTime:1000});
+    //             const clipper2 = wireObj.getComponent('phaseClipping');
+    //             if(clipper2){
+    //                 clipper2.startClipping();
+    //             }
+    //             wireObj.addScript(syncAnimation,{targetGameObject:this.musicNote});
+
+    //             console.log(this.musicNote.object3D);
+    //             //add pop script
+    //             this.musicNote.popScript = this.musicNote.addScript(scalePop,{scalePercent:1.2,time:.3});
+    //             this.musicNote.popScript.pop();
+
+    //             //add grenlight and spawn ring
+    //             this.greenlight = new THREE.PointLight(0xAAFF00, 4);
+    //             this.greenlight.position.set(1,.5,.5);
+    //             this.greenlight.lookAt(this.musicNote.object3D.position);
+    //             this.musicNote.object3D.add(this.greenlight);
+
+    //             //spawn ring
+    //             this.musicNote.addScript(spawnRing,{scale:5.5,scaleY:2,color:this.colorStringToHex('#c8ff5a64'),segments:16});
+    //             this.ring = this.musicNote.getComponent('spawnRing').spawnRing();
+               
+                
+    //     };
+        
+    //     //this.musicNote.loadModelToStory('models/musicNote1a.glb',this,this.noteLoad);
+
+    // }
+
+    // Called when leftmove1 div enters the screen
+    onLeftMove1Enter() {
+        console.log('laptopPopScene received leftmove1 signal');
+        
+        // Example: Trigger laptop pop animation
+        if (this.laptop && this.laptop.popScript) {
+            this.laptop.popScript.pop();
+
+            // this.laptop.moveScript.move();
+            if (this.laptop.currentScreenPosition == 0){
                 this.laptop.moveToPos(1);
-                this.laptop.cyclePop.goToList(1);
+                this.musicNote.hide();
             }
         }
-        else if (viewState == 2){
-            if (this.laptop.currentScreenPosition != 0){ // if not positioned left
-                // console.log('changing to pos 2');
-                this.laptop.moveToPos(0); //left side
-                this.laptop.cyclePop.goToList(2);
-            }
-        }
+        
+        // Add any other actions you want to happen when leftmove1 enters
+        // For example: start an animation, change camera position, etc.
     }
 
-
+    // Called when entering leftmove1 from the bottom (scrolling back up)
+    onLeftMove1EnterBack() {
+        console.log('laptopPopScene: entered leftmove1 from bottom');
+        
+        // Move laptop back to original position
+        if (this.laptop && this.laptop.moveToPos) {
+            if (this.laptop.currentScreenPosition == 1){
+                this.laptop.moveToPos(0);
+                this.musicNote.show();
+            }
+        }
+        
+        // Add any other actions you want when scrolling back up
+    }
 }
-
-    

@@ -51,7 +51,7 @@ export class cyclePop {
     }
     this.currentShowingObject = this.objects[this.listIndex][this.objectIndex];
     this.currentShowingObject.showPop();
-    //TODO: move currentShowingObject to a point based off of the laptop
+    this.timer =0;
   }
   nextList(){
     this.listIndex++;//next list
@@ -59,7 +59,6 @@ export class cyclePop {
       this.listIndex = 0;
     }
     this.objectIndex = 0; //start from the beginning of the objects in the list
-    clearTimeout(this.timeOut); // clear the current timeout
     this.showNextObject();
   }
   backList(){
@@ -68,13 +67,11 @@ export class cyclePop {
       this.listIndex = this.listIndex.length-1;
     }
     this.objectIndex = 0; //start from the beginning of the objects in the list
-    clearTimeout(this.timeOut); // clear the current timeout
     this.showNextObject();
   }
   goToList(ind){
     this.listIndex = ind;
     this.objectIndex = 0; //start from the beginning of the objects in the list
-    clearTimeout(this.timeOut); // clear the current timeout
     this.showNextObject();
   }
 }
