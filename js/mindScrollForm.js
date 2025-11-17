@@ -56,7 +56,7 @@ export class mindScrollForm extends ScrollForm {
                 start:'top bottom', // when top hits bottom of viewport
                 end:'bottom top', // when bottom hits top of viewport
                 onUpdate:(self)=>{ //executes while within bounds
-                    console.log(idList[i]+': ',self.progress);
+                    // console.log(idList[i]+': ',self.progress);
                     if (self.progress <=.9){ //progress is how far we are through the element
                         this.laptopScene.monitorLaptopState(i); //send the scene what element the user is on
                     }

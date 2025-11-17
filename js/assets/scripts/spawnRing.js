@@ -7,7 +7,7 @@ export class spawnRing {
     scaleY:{type:'number',default:4},
     color:{type:'color',default:0xffffff},
     segments:{type:'number',default:8},
-    
+    position:{type:'vector3',default:{x:0,y:-2,z:0}},
     
   };
 
@@ -18,6 +18,7 @@ export class spawnRing {
     this.scaleY = params.scaleY;
     this.color = params.color;
     this.segments = params.segments;
+    this.position = params.position;
     this.spawnRing();
   }
 
@@ -47,7 +48,7 @@ export class spawnRing {
     );
     this.form.scale.set(this.scale,this.scaleY,this.scale);
     this.form.rotation.set(Math.PI,0,0); //set 180 upside down
-    this.form.position.set(0,-2,0);
+    this.form.position.set(this.position.x,this.position.y,this.position.z);
     this.formGameObject = new GameObject(this.form);
     this.gameObject.object3D.add(this.form);
     return this.formGameObject;

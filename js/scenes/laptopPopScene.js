@@ -27,6 +27,8 @@ import {constrain} from '/js/assets/scripts/constrain.js';
 export class laptopPopScene extends Story{
     setupObjects(){
 
+        this.setupAudio(); //move this function over to the parent class at some point
+        
         this.videoMaterial = createVideoTexture(document.getElementById('sphereVideo'));
         this.popDisplayStarted = false;
         
@@ -39,7 +41,7 @@ export class laptopPopScene extends Story{
             });
             
             this.laptop.currentScreenPosition = 0; //used to track left or right screen position, starts on  the right
-            this.laptop.movePositions = [{x:1,y:-.5,z:0},{x:-1.2,y:.5,z:0}]; //two sides of the screen
+            this.laptop.movePositions = [{x:1,y:-1.0,z:0},{x:-1.2,y:.5,z:0}]; //two sides of the screen
             this.laptop.rotationPositions = [{x:Math.PI/9,y:Math.PI/-4,z:0},{x:Math.PI/9,y:Math.PI/4,z:0}];
             
             this.laptop.setPosition(this.laptop.movePositions[0].x,this.laptop.movePositions[0].y,this.laptop.movePositions[0].z);
@@ -108,7 +110,6 @@ export class laptopPopScene extends Story{
         let lapLight2 = new THREE.PointLight(this.colorStringToHex('#08129bff'),12);
         lapLight2.position.set(-2,0,2);
         this.mainScene.add(lapLight2);
-        
     }
 
     createFloatingObjects(){
@@ -124,6 +125,32 @@ export class laptopPopScene extends Story{
         lightColor:'#15efffd7',
         rotateSpeed:1.5,
         ring:true
+        }
+        const photoDetails = {
+        scale:[2,2,2],
+        position:[-.5,1,-.5],
+        // rotation:[0,0,0],
+        wireScale:1.05,
+        wireOpacity:.9,
+        outlineThickness:1.02,
+        wireColor:'#fcca25fb',
+        lightColor:'#f8ff93d7',
+        rotateSpeed:.5,
+        ring:true,
+        ringColor:'#fff2c881',
+        }
+        const emailDetails = {
+        scale:[.5,.5,.5],
+        position:[-.5,2,-.5],
+        // rotation:[0,0,0],
+        wireScale:1.05,
+        wireOpacity:.9,
+        outlineThickness:1.02,
+        wireColor:'#fcca25fb',
+        lightColor:'#f8ff93d7',
+        rotateSpeed:.9,
+        ring:true,
+        ringColor:'#fff2c881',
         }
         const brain2Details = {
         scale:[.3,.3,.3],
@@ -141,14 +168,16 @@ export class laptopPopScene extends Story{
         const musicNote2 = this.spawnFloatingObject('models/musicNote2a.glb',musicNoteDetails);
         // const musicNote3 = this.spawnFloatingObject('models/musicNote2a.glb',musicNoteDetails);
         
-        // const photo1 = this.createFloatingPhoto('textures/fireflyDog.png',musicNoteDetails);
+         const photo1 = this.createFloatingPhoto('textures/fireflyDog512.png',photoDetails);
         // const photo2 = this.createFloatingPhoto('textures/fireflyDog.png',musicNoteDetails);
         // const photo3 = this.createFloatingPhoto('textures/fireflyDog.png',musicNoteDetails);
 
         const brain1 = this.spawnFloatingObject('models/brainModel1High.glb',musicNoteDetails);
         const brain2 = this.spawnFloatingObject(sphereBrain,brain2Details);
 
-        const floatingObjectsList =[[brain2],[musicNote1,musicNote2],[brain1],[musicNote1,musicNote2]];
+        const email1 = this.spawnFloatingObject('models/email1.glb',emailDetails);
+
+        const floatingObjectsList =[[brain2],[photo1],[musicNote1,musicNote2],[email1]];
         //const floatingObjectsList =[[musicNote1,musicNote2,musicNote3], [photo1,photo2,photo3]];
         return floatingObjectsList; //returns list of hidden floating objects for the laptop to cycle through
     
@@ -156,15 +185,16 @@ export class laptopPopScene extends Story{
     //generate floating photos
     createFloatingPhoto(texture,details){
         const thisTexture = new THREE.TextureLoader().load(texture);
-        const plane = new THREE.Mesh(new THREE.PlaneGeometry(1,1), new THREE.MeshBasicMaterial({map:thisTexture}));
+        const plane = new THREE.Mesh(new THREE.PlaneGeometry(1,1,10,10), new THREE.MeshBasicMaterial({map:thisTexture,side:THREE.DoubleSide}));
         const planeObj = new GameObject(plane);
         planeObj.setScale(details.scale[0],details.scale[1],details.scale[2]); //initial positioning
+        //planeObj.axesHelper(100);
         planeObj.setPosition(details.position[0],details.position[1],details.position[2]);
         if (details.rotation != undefined){
             planeObj.setRotation(details.rotation[0],details.rotation[1],details.rotation[2]);
         }
-        planeObj.addScript(scripts.HoverScript,{amplitude:.6});
-        planeObj.addScript(rotate,{speed:1.5,axis:'y'});
+        planeObj.addScript(scripts.HoverScript,{amplitude:.2});
+        planeObj.addScript(rotate,{speed:details.rotateSpeed,axis:'y'});
         const wireComponent = planeObj.addScript(wireCopy,{scale:details.wireScale, story:this,opacity:.2,color:this.colorStringToHex(details.wireColor)});
         const wireObj =  wireComponent.wireGameObj;
         wireObj.addScript(phaseClipping,{speed:.6,direction:'down',loop:true,downPauseTime:1000});
@@ -172,19 +202,28 @@ export class laptopPopScene extends Story{
         if(wireClipping){
             wireClipping.startClipping();
         }
-        planeObj.popScript = planeObj.addScript(scalePop,{scalePercent:1.2,time:.3});
+        const popScript = planeObj.addScript(scalePop,{scalePercent:1.2,time:.3});
         planeObj.showPop = ()=>{ //show and pop
             planeObj.show();
-            planeObj.popScript.pop();
+            popScript.pop();
+            this.playAudio(this.popSound1);
         };
         planeObj.hidePop = ()=>{
-            planeObj.popScript.hide();
+            planeObj.hide();
         };
+
+        
+        if (details.ring){
+            planeObj.addScript(spawnRing,{position:{x:0,y:-1,z:0},scale:1.0,scaleY:1.3,color: this.colorStringToHex(details.ringColor),segments:16});
+            const ring = planeObj.getComponent('spawnRing').spawnRing();
+        }
+        
         const light = new THREE.PointLight(this.colorStringToHex(details.lightColor), 4);
         light.position.set(1,.5,.5);
         light.lookAt(planeObj.object3D.position);
         planeObj.object3D.add(light);
         planeObj.hide();
+        this.addToStory(planeObj);
         return planeObj;
     }
     
@@ -197,6 +236,7 @@ export class laptopPopScene extends Story{
                 // console.log('showing pop');
                 flObj.show();
                 popScript.pop();
+                this.playAudio(this.popSound1);
             };
             flObj.hidePop = ()=>{
                 // console.log('hiding pop');
@@ -252,7 +292,7 @@ export class laptopPopScene extends Story{
             outline.createOutline();
 
             if (details.ring){
-             flObj.addScript(spawnRing,{scale:1.0,scaleY:1.3,color:this.colorStringToHex('#5aa7ff64'),segments:16});
+             flObj.addScript(spawnRing,{position:{x:0,y:-1.5,z:0},scale:1.3,scaleY:1.5,color:this.colorStringToHex('#5aa7ff64'),segments:16});
                 const ring = flObj.getComponent('spawnRing').spawnRing();
             }
             // flObj.addAxesHelper(20);
@@ -285,22 +325,23 @@ export class laptopPopScene extends Story{
         //  console.log('viewState = ',viewState, 'currentScreenPosition = ',this.laptop.currentScreenPosition);
         if (viewState == 0){
             if (this.laptop.currentScreenPosition != 0){
-                // console.log('changing to pos 0');
+                 console.log('changing to pos 0');
                 this.laptop.moveToPos(0);
                 this.laptop.cyclePop.goToList(0);
             }
         }
         else if (viewState == 1){
             if (this.laptop.currentScreenPosition != 1){
-                // console.log('changing to pos 1');
+                 
                 this.laptop.moveToPos(1);
                 this.laptop.cyclePop.goToList(1);
+                console.log('viewState = ',viewState + ' currentScreenPosition = ' + this.laptop.currentScreenPosition);
                 
             }
         }
         else if (viewState == 2){
             if (this.laptop.currentScreenPosition != 0){ // if not positioned left
-                // console.log('changing to pos 2');
+                 console.log('changing to pos 2');
                 this.laptop.moveToPos(0); //left side
                 this.laptop.cyclePop.goToList(2);
             }
@@ -315,6 +356,32 @@ export class laptopPopScene extends Story{
     }
 
 
+    setupAudio(){
+        const listener = new THREE.AudioListener();
+        this.camera.add(listener);
+        this.popSound1 = this.createSFX('sound/pop_1.wav',listener,{volume:.5});
+        this.popSound2 = this.createSFX('sound/pop_2.mp3',listener,{volume:.5});
+       
+    }
+    createSFX(audioFile,listener,options={volume:.5,loop:false}){
+        
+        //create a global audio source
+        const sound = new THREE.Audio(listener);
+        const audioLoader = new THREE.AudioLoader();
+        audioLoader.load(audioFile, (buffer)=>{
+            sound.setBuffer(buffer);
+            sound.setVolume(options.volume);
+            sound.setLoop(options.loop);
+            sound.setPlaybackRate(1);
+        });
+         return sound;
+    }
+   playAudio(audio){
+    // if (audio.isPlaying){
+    //     audio.stop();
+    // }
+    audio.play();
+   }
 }
 
     

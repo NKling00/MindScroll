@@ -386,7 +386,7 @@ export class GameObject {
         material.dispose();
     }
 
-    addAxesHelper(size=10){
+    axesHelper(size=10){
         this.object3D.add(new THREE.AxesHelper(size));
     }
 }
