@@ -5,7 +5,7 @@ export class moveTo {
     targetScale: { type: 'vector3', default: { x: 1, y: 1, z: 1 } },
     targetRotation: { type: 'vector3', default: { x: 0, y: 0, z: 0 } }, // in radians
     duration: { type: 'number', default: 1.0 }, // duration in seconds
-    ease: { type: 'string', default: 'power2.out' }, // GSAP easing function
+    ease: { type: 'string', default: 'power3.out' }, // GSAP easing function
     delay: { type: 'number', default: 0 }, // delay before animation starts
     autoStart: { type: 'boolean', default: false }, // automatically start on creation
     onComplete: { type: 'function', default: null } // callback when animation completes

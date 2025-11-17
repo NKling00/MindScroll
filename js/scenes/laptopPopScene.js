@@ -82,11 +82,11 @@ export class laptopPopScene extends Story{
             this.laptop.addScript(scripts.HoverScript,{amplitude:.3});
            // this.laptop.addScript(scripts.lookAtMouse,{app:this.app});
             this.laptop.popScript = this.laptop.addScript(scalePop,{scalePercent:1.2,time:.3});
-            this.laptop.moveScript = this.laptop.addScript(moveTo,{targetPosition:{x:-1.2,y:.5,z:0},targetRotation:{x:Math.PI/9,y:Math.PI/4,z:0},duration:2});
+            this.laptop.moveScript = this.laptop.addScript(moveTo,{targetPosition:{x:-1.2,y:.5,z:0},targetRotation:{x:Math.PI/9,y:Math.PI/4,z:0},duration:1.5});
             
-            this.laptop.moveToPos = (index)=>{
+            this.laptop.moveToPos = (index,onComplete=undefined)=>{
                 this.laptop.currentScreenPosition = index;
-                this.laptop.moveScript.move({targetPosition:{x:this.laptop.movePositions[index].x,y:this.laptop.movePositions[index].y,z:this.laptop.movePositions[index].z},targetRotation:{x:this.laptop.rotationPositions[index].x,y:this.laptop.rotationPositions[index].y,z:this.laptop.rotationPositions[index].z}});
+                this.laptop.moveScript.move({targetPosition:{x:this.laptop.movePositions[index].x,y:this.laptop.movePositions[index].y,z:this.laptop.movePositions[index].z},targetRotation:{x:this.laptop.rotationPositions[index].x,y:this.laptop.rotationPositions[index].y,z:this.laptop.rotationPositions[index].z},onComplete:onComplete});
             };
             
             //go through the laptops materials and increase specular on all materials
@@ -148,7 +148,7 @@ export class laptopPopScene extends Story{
         const brain1 = this.spawnFloatingObject('models/brainModel1High.glb',musicNoteDetails);
         const brain2 = this.spawnFloatingObject(sphereBrain,brain2Details);
 
-        const floatingObjectsList =[[brain2],[musicNote1,musicNote2],[brain1]];
+        const floatingObjectsList =[[brain2],[musicNote1,musicNote2],[brain1],[musicNote1,musicNote2]];
         //const floatingObjectsList =[[musicNote1,musicNote2,musicNote3], [photo1,photo2,photo3]];
         return floatingObjectsList; //returns list of hidden floating objects for the laptop to cycle through
     
@@ -281,7 +281,8 @@ export class laptopPopScene extends Story{
     //Handle laptop changing states from mindScrollForm
     monitorLaptopState(viewState){ //state: 0 left, 1 right
         // console.log('CHANGE STATE');
-         console.log('viewState = ',viewState, 'currentScreenPosition = ',this.laptop.currentScreenPosition);
+        //TODO: Issue- if gsap is moving it to a new position and then it gets called to move again, im not sure if it will overwrite or ignore. Could be the cause of the issue. Will need to cancel current movement call.
+        //  console.log('viewState = ',viewState, 'currentScreenPosition = ',this.laptop.currentScreenPosition);
         if (viewState == 0){
             if (this.laptop.currentScreenPosition != 0){
                 // console.log('changing to pos 0');
@@ -294,6 +295,7 @@ export class laptopPopScene extends Story{
                 // console.log('changing to pos 1');
                 this.laptop.moveToPos(1);
                 this.laptop.cyclePop.goToList(1);
+                
             }
         }
         else if (viewState == 2){
@@ -301,6 +303,13 @@ export class laptopPopScene extends Story{
                 // console.log('changing to pos 2');
                 this.laptop.moveToPos(0); //left side
                 this.laptop.cyclePop.goToList(2);
+            }
+        }
+        else if (viewState == 3){
+            if (this.laptop.currentScreenPosition != 1){
+                // console.log('changing to pos 1');
+                this.laptop.moveToPos(1);
+                this.laptop.cyclePop.goToList(3);
             }
         }
     }

@@ -5,7 +5,7 @@
 // target html elements to assign scene/renderer to the element
 import {ScrollForm} from '/js/scrollForm.js';
 import * as THREE from 'three';
-
+import lottie from "lottie-web"
 
 /**
  * ScrollForm is the central system to manage individual THREEJS scenes.It will be able to handle any necessary communications between scenes
@@ -17,39 +17,35 @@ export class mindScrollForm extends ScrollForm {
         //instantiate each scene
         
         this.laptopScene = this.stories[1];
-    
-        ScrollTrigger.create({ //laptop pop working  
-            trigger:'#laptopPopContainer',
-            start:'top top',
-            end:'bottom bottom',
-            pin:"#laptopPopTHREE",
-            scrub:true,
-            markers:false
-        })
+        
+        //Title STICKY SETUP
+        this.titleSetup(); //this uses old methods, could be cleaned up at some point but fine for now.
 
-        //STICKY SETUP
+        //Laptop STICKY SETUP
+        this.createStickyContainer('#laptopPopTHREE','#laptopPopContainer'); // container height is set to auto with chapter divs inside so its automatically height of contents
 
         //Sticky the pinned element for the length of it's parent container
         this.createStickyContainer('#chapter1Container','#spacer1');  //pinned element and then the spacer container
         this.createStickyContainer('#chapter2Container','#spacer2');
         this.createStickyContainer('#chapter3Container','#spacer3');
+        this.createStickyContainer('#chapter4Container','#spacer4');
 
         // State management for laptop
-        this.createLaptopStateMonitors(['#spacer1','#spacer2','#spacer3']);
+        this.createLaptopStateMonitors(['#spacer1','#spacer2','#spacer3','#spacer4']);
         
     }
 
     //Pin Target element within container element for length of container
     //Useful to use a parent container to set a pixel height.
     //then a pinned child inside that container will stay on screen until user has scrolled past the container
-    createStickyContainer(targetString,containerString){ 
-         ScrollTrigger.create({ //setup stick for chapter 1
-            trigger:containerString,
+    createStickyContainer(pinTarget,containerTarget,markersBool=false){ 
+         ScrollTrigger.create({ 
+            trigger:containerTarget,
             start:'top top',
             end:'bottom bottom',
-            pin:targetString,
+            pin:pinTarget,
             scrub:true,
-            markers:false
+            markers:markersBool
         });
     }
 
@@ -72,5 +68,86 @@ export class mindScrollForm extends ScrollForm {
             })
         }
     }
+    titleSetup(){
+        
+     const moduleTitle = document.getElementById('moduleTitle');
+        const parentContainer = document.getElementsByClassName('hero-section');
+        moduleTitle.style.opacity = 0;
+        ScrollTrigger.create({
+            trigger: moduleTitle,
+            start: " top+=150 top ", //when the top +150 hits the top of the element
+            endTrigger: parentContainer[0],
+            end: "bottom bottom", // ends when bottom of element hit bottom of parent element
+            //markers:true,
+            pin: true,
+            pinSpacing: true, // adds space after the pinned element           
+            onEnter: ()=>{
+                gsap.to(moduleTitle,{opacity:1,duration:5,delay:1,ease:'power1:inOut'});
+            },  
+            onUpdate: self => {
+                if (self.progress > 0.6) {
+                    gsap.to(moduleTitle, {opacity: 0,duration: 1.5,ease: "power1.out"});
+                }
+                else {
+                    gsap.to(moduleTitle, {opacity: 1,duration: 5,ease: "power1.out"});
+                }
+            }
+
+            // onLeave: () => {
+            //     gsap.to(".moduleTitle", { opacity: 0, duration: 2 });
+            //     }
+
+        });
+        gsap.from('#titleQ',{y:-150,duration: 2,delay:1.5,ease: "power2.Out"});
+
+        const questionMark = document.getElementById('titleQ');
+        questionMark.style.opacity = 0;
+        ScrollTrigger.create({
+            trigger: '#titleQ',
+            start: " top top ", //when the top +150 hits the top of the element
+            endTrigger: parentContainer[0],
+            end: "bottom-=50% bottom ", // ends when bottom of element hit bottom of parent element
+            markers:false,
+            pin: true,
+            pinSpacing: true, // adds space after the pinned element           
+             
+            onUpdate: self => {
+                if (self.progress > 0.6) {
+                    gsap.to('#titleQ', {opacity: 0,duration:2,ease: "power1.out"});
+                }
+                else {
+                    gsap.to('#titleQ', {opacity: 1,duration:4,delay:1,ease: "power1.out"});
+                }
+            }
+        });
+        
+        const lottieBrainAnim = lottie.loadAnimation({
+            container: document.getElementById('lottieBrain'),
+            renderer:'svg',
+            loop:true,
+            autoplay:true,
+            path:'media/AI_Brain.json'
+        })
+
+        const lottieElem = document.getElementById('lottieBrain');
+         ScrollTrigger.create({
+            trigger: lottieElem,
+            start: " top+=150 top ", //when the top +150 hits the top of the element
+            endTrigger: parentContainer[0],
+            end: "bottom bottom", // ends when bottom of element hit bottom of parent element
+            //markers:true,
+            pin: true,
+            pinSpacing: false, // adds space after the pinned element           
+            
+            onUpdate: self => {
+                if (self.progress > 0.6) {
+                    gsap.to(lottieElem, {opacity: 0,duration: 1.5,ease: "power1.out"});
+                }
+                else {
+                    gsap.to(lottieElem, {opacity: 1,duration: 5,ease: "power1.out"});
+                }
+            }
+        });
     
+    }
 }
