@@ -18,11 +18,13 @@ export class mindScrollForm extends ScrollForm {
         
         this.laptopScene = this.stories[1];
         
+        this.setupButtonFunctions();
+
         //Title STICKY SETUP
         this.titleSetup(); //this uses old methods, could be cleaned up at some point but fine for now.
 
         //Laptop STICKY SETUP
-        this.createStickyContainer('#laptopPopTHREE','#laptopPopContainer'); // container height is set to auto with chapter divs inside so its automatically height of contents
+        this.createStickyPassthroughContainer('#laptopPopTHREE','#laptopPopContainer'); // container height is set to auto with chapter divs inside so its automatically height of contents
 
         //Sticky the pinned element for the length of it's parent container
         this.createStickyContainer('#chapter1Container','#spacer1');  //pinned element and then the spacer container
@@ -48,6 +50,23 @@ export class mindScrollForm extends ScrollForm {
             markers:markersBool
         });
     }
+    createStickyPassthroughContainer(pinTarget,containerTarget,markersBool=false){ 
+         ScrollTrigger.create({ 
+            trigger:containerTarget,
+            start:'top top',
+            end:'bottom bottom',
+            pin:pinTarget,
+            scrub:true,
+            markers:markersBool,
+            onToggle(self) {
+                //alert('hi');
+                // when active (pinned), disable pointer events
+                console.log(self);
+                    self.spacer.style.pointerEvents = 'none';
+                    self.pin.style.pointerEvents = 'none';
+                
+            }});
+    };
 
     createLaptopStateMonitors(idList){ //setup scroll triggers to run the laptop scene
         for (let i = 0; i < idList.length; i++) {
@@ -149,5 +168,16 @@ export class mindScrollForm extends ScrollForm {
             }
         });
     
+    }
+    setupButtonFunctions(){
+        const nextImageButton = document.querySelector('#nextImageBtn');
+        nextImageButton.addEventListener('click', () => {
+            this.laptopScene.nextImageClick();
+        });
+        
+        const audioGenButton = document.querySelector('#audioGenBtn');
+        audioGenButton.addEventListener('click', () => {
+            this.laptopScene.playAudioClick();
+        });
     }
 }

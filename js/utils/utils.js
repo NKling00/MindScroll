@@ -41,3 +41,33 @@ export function centerMesh(mesh) {
     // to be adjusted to stay in the same world spot, though often it's simpler
     // to apply this function immediately after loading and then position the mesh as needed.
 }
+
+
+ /**
+     * @description Converts a color string (CSS color name, hex, rgb, etc.) to a hexadecimal color code
+     * @param {string} colorString - Color string (e.g., 'red', '#ff0000', 'rgb(255,0,0)', 'hsl(0,100%,50%)')
+     * @returns {number} Hexadecimal color code (e.g., 0xff0000)
+     */
+   export function colorStringToHex(colorString) {
+        // Create a temporary element to use browser's color parsing
+        const tempElement = document.createElement('div');
+        tempElement.style.color = colorString;
+        document.body.appendChild(tempElement);
+        
+        // Get computed color (always returns rgb/rgba format)
+        const computedColor = window.getComputedStyle(tempElement).color;
+        document.body.removeChild(tempElement);
+        
+        // Parse rgb/rgba format
+        const rgbMatch = computedColor.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+        if (rgbMatch) {
+            const r = parseInt(rgbMatch[1]);
+            const g = parseInt(rgbMatch[2]);
+            const b = parseInt(rgbMatch[3]);
+            return (r << 16) | (g << 8) | b;
+        }
+        
+        // If parsing fails, return white as default
+        console.warn(`Failed to parse color string: ${colorString}`);
+        return 0xffffff;
+    }

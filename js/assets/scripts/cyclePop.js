@@ -71,7 +71,7 @@ export class cyclePop {
   }
   goToList(ind){
     this.listIndex = ind;
-    this.objectIndex = 0; //start from the beginning of the objects in the list
+    this.objectIndex = -1; //start from the beginning of the objects in the list
     this.showNextObject();
   }
 }

@@ -19,6 +19,8 @@ import {cyclePop} from '/js/assets/scripts/cyclePop.js';
 import {createOutlineObject} from '/js/assets/scripts/createOutlineObject.js';
 import {centerMesh} from '/js/utils/utils.js';
 import {constrain} from '/js/assets/scripts/constrain.js';
+import {createConfetti} from '/js/assets/scripts/createConfetti.js';
+
 
 //Imports for 3d Assets
 
@@ -82,6 +84,7 @@ export class laptopPopScene extends Story{
 
           //Add Behavior Scripts
             this.laptop.addScript(scripts.HoverScript,{amplitude:.3});
+            this.confetti = this.laptop.addScript(createConfetti,{count:90,maxLife:1.2});
            // this.laptop.addScript(scripts.lookAtMouse,{app:this.app});
             this.laptop.popScript = this.laptop.addScript(scalePop,{scalePercent:1.2,time:.3});
             this.laptop.moveScript = this.laptop.addScript(moveTo,{targetPosition:{x:-1.2,y:.5,z:0},targetRotation:{x:Math.PI/9,y:Math.PI/4,z:0},duration:1.5});
@@ -89,6 +92,8 @@ export class laptopPopScene extends Story{
             this.laptop.moveToPos = (index,onComplete=undefined)=>{
                 this.laptop.currentScreenPosition = index;
                 this.laptop.moveScript.move({targetPosition:{x:this.laptop.movePositions[index].x,y:this.laptop.movePositions[index].y,z:this.laptop.movePositions[index].z},targetRotation:{x:this.laptop.rotationPositions[index].x,y:this.laptop.rotationPositions[index].y,z:this.laptop.rotationPositions[index].z},onComplete:onComplete});
+                this.playAudio(this.mediumSwoosh);
+                // this.confetti.burst({spread: 6, upPower: 5,color:this.colorStringToHex('#5bfc45ff')});
             };
             
             //go through the laptops materials and increase specular on all materials
@@ -115,7 +120,7 @@ export class laptopPopScene extends Story{
     createFloatingObjects(){
         //pass in reference to laptop to get its child spawn position
         const musicNoteDetails = {
-        scale:[.3,.3,.3],
+        scale:[.4,.4,.4],
         position:[0,1.8,.5],
         // rotation:[0,0,0],
         wireScale:1.02,
@@ -127,13 +132,13 @@ export class laptopPopScene extends Story{
         ring:true
         }
         const photoDetails = {
-        scale:[2,2,2],
-        position:[-.5,1,-.5],
+        scale:[2.8,2.8,2.8],
+        position:[-1.8,1.5,0],
         // rotation:[0,0,0],
         wireScale:1.05,
-        wireOpacity:.9,
+        wireOpacity:1,
         outlineThickness:1.02,
-        wireColor:'#fcca25fb',
+        wireColor:'#fc2525fb',
         lightColor:'#f8ff93d7',
         rotateSpeed:.5,
         ring:true,
@@ -168,16 +173,18 @@ export class laptopPopScene extends Story{
         const musicNote2 = this.spawnFloatingObject('models/musicNote2a.glb',musicNoteDetails);
         // const musicNote3 = this.spawnFloatingObject('models/musicNote2a.glb',musicNoteDetails);
         
-         const photo1 = this.createFloatingPhoto('textures/fireflyDog512.png',photoDetails);
-        // const photo2 = this.createFloatingPhoto('textures/fireflyDog.png',musicNoteDetails);
-        // const photo3 = this.createFloatingPhoto('textures/fireflyDog.png',musicNoteDetails);
+         const photo1 = this.createFloatingPhoto('textures/catfire3.png',photoDetails);
+         const photo2 = this.createFloatingPhoto('textures/dogwaiter1.png',photoDetails);
+         const photo3 = this.createFloatingPhoto('textures/GorillaFlying.png',photoDetails);
+         const photo4 = this.createFloatingPhoto('textures/hipposkateboard.png',photoDetails);
+
 
         const brain1 = this.spawnFloatingObject('models/brainModel1High.glb',musicNoteDetails);
         const brain2 = this.spawnFloatingObject(sphereBrain,brain2Details);
 
         const email1 = this.spawnFloatingObject('models/email1.glb',emailDetails);
 
-        const floatingObjectsList =[[brain2],[photo1],[musicNote1,musicNote2],[email1]];
+        const floatingObjectsList =[[brain2],[photo1,photo2,photo3,photo4],[musicNote1,musicNote2],[email1]];
         //const floatingObjectsList =[[musicNote1,musicNote2,musicNote3], [photo1,photo2,photo3]];
         return floatingObjectsList; //returns list of hidden floating objects for the laptop to cycle through
     
@@ -361,6 +368,15 @@ export class laptopPopScene extends Story{
         this.camera.add(listener);
         this.popSound1 = this.createSFX('sound/pop_1.wav',listener,{volume:.5});
         this.popSound2 = this.createSFX('sound/pop_2.mp3',listener,{volume:.5});
+        
+        this.sparklePing = this.createSFX('sound/ping-sparkle.mp3', listener, {volume:.5});
+        this.mediumSwoosh = this.createSFX('sound/med-swoosh2.mp3',listener,{volume:.15})
+        
+        this.genAudio1 = this.createSFX('sound/ai-song1.mp3',listener,{volume:.4});
+        this.genAudio2 = this.createSFX('sound/guitar1.mp3',listener,{volume:.2});
+        this.genAudio3 = this.createSFX('sound/videogame1.mp3',listener,{volume:.3});
+        this.genAudioIndex =0;
+        this.genAudioList = [this.genAudio1, this.genAudio2, this.genAudio3];
        
     }
     createSFX(audioFile,listener,options={volume:.5,loop:false}){
@@ -380,7 +396,20 @@ export class laptopPopScene extends Story{
     // if (audio.isPlaying){
     //     audio.stop();
     // }
+    if (audio == this.sparklePing){
+        audio.stop();
+    }
     audio.play();
+   }
+
+   nextImageClick(){
+    console.log('click func');
+    this.playAudio(this.sparklePing);
+    this.laptop.cyclePop.showNextObject();
+   }
+   playAudioClick(){
+    this.playAudio(this.genAudioList[this.genAudioIndex]);
+    this.genAudioIndex = (this.genAudioIndex + 1) % this.genAudioList.length;
    }
 }
 
