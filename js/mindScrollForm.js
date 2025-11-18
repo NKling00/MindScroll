@@ -19,6 +19,7 @@ export class mindScrollForm extends ScrollForm {
         this.laptopScene = this.stories[1];
         
         this.setupButtonFunctions();
+        
 
         //Title STICKY SETUP
         this.titleSetup(); //this uses old methods, could be cleaned up at some point but fine for now.
@@ -26,11 +27,17 @@ export class mindScrollForm extends ScrollForm {
         //Laptop STICKY SETUP
         this.createStickyPassthroughContainer('#laptopPopTHREE','#laptopPopContainer'); // container height is set to auto with chapter divs inside so its automatically height of contents
 
+
+        // this.setupScrollProgressBar();
         //Sticky the pinned element for the length of it's parent container
         this.createStickyContainer('#chapter1Container','#spacer1');  //pinned element and then the spacer container
+        this.setupScrollProgressBar(document.querySelector('#scrollProgressBar1'), document.querySelector('#spacer1'));
         this.createStickyContainer('#chapter2Container','#spacer2');
+        this.setupScrollProgressBar(document.querySelector('#scrollProgressBar2'), document.querySelector('#spacer2'));
         this.createStickyContainer('#chapter3Container','#spacer3');
+        this.setupScrollProgressBar(document.querySelector('#scrollProgressBar3'), document.querySelector('#spacer3'));
         this.createStickyContainer('#chapter4Container','#spacer4');
+        this.setupScrollProgressBar(document.querySelector('#scrollProgressBar4'), document.querySelector('#spacer4'));
 
         // State management for laptop
         this.createLaptopStateMonitors(['#spacer1','#spacer2','#spacer3','#spacer4']);
@@ -170,6 +177,14 @@ export class mindScrollForm extends ScrollForm {
     
     }
     setupButtonFunctions(){
+
+        const beginButton = document.querySelector('#beginBtn')
+        beginButton.addEventListener('click', () => {
+            document.body.classList.remove('no-scroll');
+            beginButton.remove();
+        });
+
+
         const nextImageButton = document.querySelector('#nextImageBtn');
         nextImageButton.addEventListener('click', () => {
             this.laptopScene.nextImageClick();
@@ -178,6 +193,26 @@ export class mindScrollForm extends ScrollForm {
         const audioGenButton = document.querySelector('#audioGenBtn');
         audioGenButton.addEventListener('click', () => {
             this.laptopScene.playAudioClick();
+        });
+    }
+
+    setupScrollProgressBar(progBarTarget,trackElementTarget){
+        const progressBar = progBarTarget;
+        const trackElement = trackElementTarget;
+        // const progressBar = document.getElementById('scrollProgressBar1');
+        // const trackElement = document.getElementById('spacer1');
+
+        if (!progressBar || !trackElement) return;
+
+        ScrollTrigger.create({
+            trigger: trackElement,
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: true,
+            onUpdate: (self) => {
+                const progressPercent = Math.min((self.progress * 120),100).toFixed(2); // normal is *100 but Ive cheated to give more buffer to completion and gave it *120% progress. Cap it at 100% though.
+                 progressBar.style.width = `${progressPercent}%`;
+            }
         });
     }
 }
